@@ -1,14 +1,48 @@
-# Online Examination System
+# 🎓 Online Examination System
 
-A full-stack **Online Examination System** built using **Django (Backend)** and **HTML, CSS, Bootstrap (Frontend)**.
-The system allows administrators, teachers, and students to manage and participate in online exams.
+A **web-based Online Examination System** built using **Django (Backend)** and **HTML, CSS, Bootstrap (Frontend)**.
+This system allows educational institutions to manage exams digitally, enabling teachers to create exams and students to participate online.
 
 ---
 
-# Project Structure
+# 📌 Features
 
-```
-online-examination-system
+- Student Registration
+- Teacher Management
+- Exam Creation
+- Question Bank
+- Online Exam Interface
+- Automatic Result Generation
+- Admin Dashboard
+- Role-based Access (Admin / Teacher / Student)
+
+---
+
+# 🛠 Tech Stack
+
+**Backend**
+
+- Django
+- Python
+
+**Frontend**
+
+- HTML
+- CSS
+- Bootstrap
+- JavaScript
+
+**Database**
+
+- SQLite (development)
+- PostgreSQL/MySQL (production)
+
+---
+
+# 📂 Project Structure
+
+```id="n6sdh0"
+online-exam-system
 │
 ├── backend
 │   ├── manage.py
@@ -34,7 +68,8 @@ online-examination-system
 ├── docs
 │   ├── SRS.pdf
 │   ├── MRD.pdf
-│   └── diagrams
+│   ├── ERD
+│   └── DFD
 │
 ├── requirements.txt
 └── README.md
@@ -42,42 +77,25 @@ online-examination-system
 
 ---
 
-# Prerequisites
+# ⚙️ Project Setup (For Team Members)
 
-Make sure you have the following installed:
+## 1️⃣ Clone Repository
 
-- Python **3.10+**
-- Git
-- pip
-
-Check versions:
-
-```bash
-python --version
-git --version
-```
-
----
-
-# Step 1: Clone the Repository
-
-```bash
+```bash id="s1zzs1"
 git clone https://github.com/Yusuf8856/online-exam-system.git
 ```
 
 Move into the project directory:
 
-```bash
+```bash id="t9jpk6"
 cd online-exam-system
 ```
 
 ---
 
-# Step 2: Create Virtual Environment
+## 2️⃣ Create Virtual Environment
 
-Create a virtual environment:
-
-```bash
+```bash id="f0d1y0"
 python -m venv venv
 ```
 
@@ -85,188 +103,143 @@ Activate it:
 
 ### Windows
 
-```bash
+```bash id="7sj62r"
 venv\Scripts\activate
 ```
 
 ### Linux / Mac
 
-```bash
+```bash id="ojhdri"
 source venv/bin/activate
 ```
 
 ---
 
-# Step 3: Install Dependencies
+## 3️⃣ Install Dependencies
 
-Install required packages:
-
-```bash
+```bash id="40vfj9"
 pip install -r requirements.txt
 ```
 
-If requirements file does not exist:
-
-```bash
-pip install django
-```
-
 ---
 
-# Step 4: Go to Backend Folder
+## 4️⃣ Run Migrations
 
-```bash
+```bash id="dc5uea"
 cd backend
-```
-
----
-
-# Step 5: Run Database Migration
-
-```bash
 python manage.py migrate
 ```
 
 ---
 
-# Step 6: Run Development Server
+## 5️⃣ Start Development Server
 
-```bash
+```bash id="fcf70t"
 python manage.py runserver
 ```
 
-Server will start at:
+Open browser:
 
-```
+```id="dd2g1q"
 http://127.0.0.1:8000
 ```
 
 ---
 
-# Project Modules
+# 👥 Git Workflow (Team Development)
 
-| Module    | Description                   |
-| --------- | ----------------------------- |
-| Users     | Authentication and user roles |
-| Students  | Student management            |
-| Teachers  | Teacher management            |
-| Exams     | Exam creation and scheduling  |
-| Questions | Question bank                 |
-| Results   | Result calculation            |
+⚠️ **Direct push to `main` is not allowed.**
 
----
+Follow these steps:
 
-# Git Workflow for Team Members
+### Pull latest code
 
-Always pull the latest code first:
-
-```bash
+```bash id="ik3jsg"
 git pull origin main
 ```
 
-Create a new branch for your task:
+---
 
-```bash
-git checkout -b feature-name
+### Create a new branch
+
+```bash id="e6g4s3"
+git checkout -b your-module-name
 ```
 
 Example:
 
-```
-git checkout -b student-module
+```bash id="bjq7cr"
+git checkout -b students-module
 ```
 
-After completing your work:
+---
 
-```bash
+### Work on your module
+
+After changes:
+
+```bash id="w2ftv5"
 git add .
-git commit -m "Added student module"
-git push origin student-module
-```
-
-Create a **Pull Request** on GitHub.
-
----
-
-# Team Task Assignment
-
-| Member | Responsibility |
-| ------ | -------------- |
-
----
-
-# Static Files
-
-Static assets are stored in:
-
-```
-static/
-```
-
-Example:
-
-```
-static/css
-static/js
-static/images
+git commit -m "Added students module"
 ```
 
 ---
 
-# Templates
+### Push branch
 
-All frontend pages are located in:
-
-```
-templates/
-```
-
-Example pages:
-
-```
-login.html
-dashboard.html
-exam.html
-result.html
+```bash id="wglr9t"
+git push origin students-module
 ```
 
 ---
 
-# Documentation
+### Create Pull Request on GitHub
 
-Project documentation is available in:
+1. Go to repository
+2. Click **Compare & Pull Request**
+3. Request review
+4. Merge into `main`
 
-```
+---
+
+# 📦 Project Modules
+
+| Module    | Description                      |
+| --------- | -------------------------------- |
+| Users     | Authentication & role management |
+| Students  | Student profiles                 |
+| Teachers  | Teacher profiles                 |
+| Exams     | Exam creation & scheduling       |
+| Questions | Question bank                    |
+| Results   | Result calculation               |
+
+---
+
+# 📊 Documentation
+
+All project documentation is stored in:
+
+```id="r0pqhy"
 docs/
 ```
 
 Includes:
 
-- SRS
-- MRD
+- SRS (Software Requirements Specification)
+- MRD (Market Requirements Document)
 - ER Diagram
-- DFD
+- DFD Diagrams
 
 ---
 
-# Running the Project
-
-Final command to run the project:
-
-```bash
-python manage.py runserver
-```
-
-Then open:
-
-```
-http://127.0.0.1:8000
-```
-
----
-
-# Contributors
+# 👨‍💻 Contributors
 
 Project Team – Online Examination System
+
+---
+
+# 📄 License
+
+This project is developed for **educational purposes**.
 
 ---
