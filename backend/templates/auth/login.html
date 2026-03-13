@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+
+    <!-- Page title -->
+    <title>Online Examination System - Login</title>
+
+    <!-- CSS file -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+    <!-- Main wrapper -->
+    <div class="wrapper">
+
+        <!-- Login card -->
+        <div class="login-card">
+
+            <!-- Logo / title -->
+            <h1>Online Examination System</h1>
+            <p class="subtitle">Secure Login Portal</p>
+
+            <!-- Login form -->
+            <form id="loginForm">
+
+                <!-- Email input -->
+                <div class="form-group">
+                    <label>USER ID</label>
+                    <input type="text" required placeholder="ENTER ID">
+                </div>
+
+                <!-- Password input -->
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" required placeholder="ENTER PASSWORD">
+                </div>
+
+                <!-- Role selection -->
+                <div class="form-group">
+                    <label>Select Role</label>
+
+                    <select id="role">
+
+                        <option value="">Choose Role</option>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Admin</option>
+
+                    </select>
+                </div>
+
+                <!-- CAPTCHA section -->
+                <div class="captcha-section">
+
+                    <div class="captcha-box">
+
+                        <!-- Generated captcha -->
+                        <span id="captcha"></span>
+
+                        <!-- User captcha input -->
+                        <input type="text" id="captchaInput" placeholder="Enter CAPTCHA">
+
+                        <!-- Refresh button -->
+                        <button type="button" onclick="generateCaptcha()">↻</button>
+
+                    </div>  
+
+                </div>
+
+                <!-- Login button -->
+                <button type="submit" class="login-btn">
+                    Login
+                </button>
+
+            </form>
+
+            <!-- Register link -->
+            <p class="register-text">
+                Don't have an account?
+                <a href="{% url 'register' %}">Register</a>
+            </p>
+
+        </div>
+
+    </div>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
