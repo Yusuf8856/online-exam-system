@@ -7,14 +7,14 @@ This system allows educational institutions to manage exams digitally, enabling 
 
 # 📌 Features
 
-* Student Registration
-* Teacher Management
-* Exam Creation
-* Question Bank
-* Online Exam Interface
-* Automatic Result Generation
-* Admin Dashboard
-* Role-based Access (Admin / Teacher / Student)
+- Student Registration
+- Teacher Management
+- Exam Creation
+- Question Bank
+- Online Exam Interface
+- Automatic Result Generation
+- Admin Dashboard
+- Role-based Access (Admin / Teacher / Student)
 
 ---
 
@@ -22,20 +22,20 @@ This system allows educational institutions to manage exams digitally, enabling 
 
 **Backend**
 
-* Django
-* Python
+- Django
+- Python
 
 **Frontend**
 
-* HTML
-* CSS
-* Bootstrap
-* JavaScript
+- HTML
+- CSS
+- Bootstrap
+- JavaScript
 
 **Database**
 
-* SQLite (development)
-* PostgreSQL/MySQL (production)
+- SQLite (development)
+- PostgreSQL/MySQL (production)
 
 ---
 
@@ -225,10 +225,10 @@ docs/
 
 Includes:
 
-* SRS (Software Requirements Specification)
-* MRD (Market Requirements Document)
-* ER Diagram
-* DFD Diagrams
+- SRS (Software Requirements Specification)
+- MRD (Market Requirements Document)
+- ER Diagram
+- DFD Diagrams
 
 ---
 
