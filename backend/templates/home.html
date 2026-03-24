@@ -1,0 +1,97 @@
+{% extends 'base.html' %} {% block title %}Welcome | Online Examination System{% endblock %} {% block content %}
+<div class="row align-items-center py-5 mb-5">
+  <div class="col-lg-6">
+    <h1 class="display-4 fw-bold text-dark mb-3">
+      Master Your Exams with Confidence
+    </h1>
+    <p class="lead text-muted mb-4">
+      A secure and easy-to-use platform for teachers to create assessments and
+      for students to excel in their studies. Experience real-time results and
+      analytics.
+    </p>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+      {% if user.is_authenticated %}
+      <!-- Optional: Redirect based on role in logic, or show generic dashboard link -->
+      <a
+        href="{% url 'login' %}"
+        class="btn btn-primary btn-lg px-4 me-md-2 rounded-pill shadow-sm"
+        >Go to Dashboard</a
+      >
+      {% else %}
+      <a
+        href="{% url 'login' %}"
+        class="btn btn-primary btn-lg px-4 me-md-2 rounded-pill shadow-sm"
+        >Login</a
+      >
+      <a
+        href="/register"
+        class="btn btn-outline-secondary btn-lg px-4 rounded-pill"
+        >Register Now</a
+      >
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-6 text-center mt-4 mt-lg-0">
+    <img
+      src="https://img.freepik.com/free-vector/online-test-concept-illustration_114360-5474.jpg"
+      alt="Online Exam"
+      class="img-fluid rounded-3 shadow-lg"
+      style="max-height: 400px"
+    />
+  </div>
+</div>
+
+<div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center"
+          style="width: 60px; height: 60px"
+        >
+          <i class="fas fa-laptop-code fa-lg"></i>
+        </div>
+        <h3 class="fs-4 fw-bold">Easy Management</h3>
+        <p class="text-muted">
+          Teachers can easily create, schedule, and manage exams with our
+          intuitive interface.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center"
+          style="width: 60px; height: 60px"
+        >
+          <i class="fas fa-shield-alt fa-lg"></i>
+        </div>
+        <h3 class="fs-4 fw-bold">Secure Testing</h3>
+        <p class="text-muted">
+          Advanced security measures ensure exam integrity and prevent
+          unauthorized access.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon bg-warning bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center"
+          style="width: 60px; height: 60px"
+        >
+          <i class="fas fa-chart-line fa-lg"></i>
+        </div>
+        <h3 class="fs-4 fw-bold">Instant Results</h3>
+        <p class="text-muted">
+          Students receive immediate feedback and detailed performance analytics
+          after exams.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

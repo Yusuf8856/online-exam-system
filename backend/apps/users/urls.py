@@ -3,4 +3,17 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('dashboard/admin/manage-students/', views.manage_students, name='manage_students'),
+    path('dashboard/admin/manage-teachers/', views.manage_teachers, name='manage_teachers'),
+    path('dashboard/admin/manage-exams/', views.manage_exams, name='manage_exams'),
+    path('dashboard/admin/question-bank/', views.question_bank, name='question_bank'),
+    path('dashboard/admin/results/', views.view_results, name='view_results'),
+    path('dashboard/admin/settings/', views.admin_settings, name='admin_settings'),
+    path('dashboard/teacher/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/edit/', views.edit_profile_view, name='edit_profile'),
+    path('logout/', views.logout_view, name='logout'),
 ]

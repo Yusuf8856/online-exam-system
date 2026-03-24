@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block title %}Available Exams 
+{% endblock %} {% block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4">Available Exams</h2>
+  <a
+    href="javascript:history.back()"
+    class="btn btn-outline-secondary btn-sm mb-3"
+  >
+    <i class="fas fa-arrow-left me-1"></i> Back
+  </a>
+  <div class="row">
+    {% for exam in exams %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ exam.name }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ exam.subject }}</h6>
+          <p class="card-text">
+            <small
+              >By: {{
+              exam.created_by.get_full_name|default:exam.created_by.username
+              }}</small
+            >
+          </p>
+          <ul class="list-unstyled mt-3 mb-4">
+            <li><strong>Date:</strong> {{ exam.date|date:"M d, Y" }}</li>
+            <li><strong>Time:</strong> {{ exam.start_time|time:"H:i" }}</li>
+            <li><strong>Duration:</strong> {{ exam.duration }} minutes</li>
+          </ul>
+          <div class="mt-auto">
+            {% if exam.id in taken_exam_ids %}
+            <a href="#" class="btn btn-secondary disabled w-100">Completed</a>
+            {% else %}
+            <a
+              href="{% url 'students:take_exam' exam.id %}"
+              class="btn btn-success w-100"
+              >Start Exam</a
+            >
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col">
+      <div class="alert alert-info">
+        There are no available exams at the moment.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

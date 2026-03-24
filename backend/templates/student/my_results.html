@@ -1,0 +1,62 @@
+{% extends 'base.html' %} {% block title %}My Exam Results 
+{% endblock %} {% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">My Exam Results</h2>
+  <a
+    href="javascript:history.back()"
+    class="btn btn-outline-secondary btn-sm mb-3"
+  >
+    <i class="fas fa-arrow-left me-1"></i> Back
+  </a>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% if results %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Exam Name</th>
+              <th>Subject</th>
+              <th>Date Taken</th>
+              <th>Score</th>
+              <th>Percentage</th>
+              <th>Report</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in results %}
+            <tr>
+              <td class="fw-bold">{{ result.exam.name }}</td>
+              <td>{{ result.exam.subject }}</td>
+              <td>{{ result.date_taken|date:"M d, Y H:i" }}</td>
+              <td>
+                {{ result.score|floatformat:0 }} / {{ result.total_marks|floatformat:0 }}
+              </td>
+              <td>
+                {% widthratio result.score result.total_marks 100 as percentage %}
+                <span
+                  class="badge {% if percentage >= 50 %}bg-success{% else %}bg-danger{% endif %}"
+                  >{{ percentage|floatformat:2 }}%</span
+                >
+              </td>
+              <td>
+                {% if result.is_published %}
+                <a href="{% url 'students:result_report' result.id %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-file-alt"></i> View Report
+                </a>
+                {% else %}
+                <span class="badge bg-secondary">Pending Approval</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-info">You have not completed any exams yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'base.html' %} {% block title %}Report Card - {{ result.exam.name }}{% endblock %} 
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <!-- Toolbar -->
+      <div class="mb-3 text-end d-print-none">
+        <a
+          href="javascript:history.back()"
+          class="btn btn-outline-secondary me-2"
+          >Back</a
+        >
+        <button onclick="window.print()" class="btn btn-primary">
+          <i class="fas fa-print"></i> Print Report
+        </button>
+      </div>
+
+      <!-- Report Card -->
+      <div class="card shadow-lg border-0" id="print-area">
+        <!-- Header -->
+        <div class="card-header bg-white border-bottom-0 pt-5 pb-0 text-center">
+          <div class="mb-3">
+            <i class="fas fa-university fa-3x text-primary"></i>
+          </div>
+          <h2 class="text-uppercase fw-bold text-primary">
+            Online Examination System
+          </h2>
+          <p class="text-muted">Official Student Performance Report</p>
+          <hr class="w-50 mx-auto text-primary" style="opacity: 0.2" />
+        </div>
+
+        <div class="card-body p-5">
+          <!-- Student & Exam Details -->
+          <div class="row mb-5">
+            <div class="col-md-6">
+              <h5 class="text-uppercase text-muted small fw-bold mb-3">
+                Student Details
+              </h5>
+              <ul class="list-unstyled">
+                <li class="mb-2">
+                  <strong>Name:</strong> 
+                  {{ student.get_full_name|default:student.username }}
+                </li>
+                <li class="mb-2">
+                  <strong>Reg. ID:</strong> 
+                  {{ student.profile.registration_id|default:"N/A" }}
+                </li>
+                <li class="mb-2">
+                  <strong>Email:</strong> {{ student.email }}
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <h5 class="text-uppercase text-muted small fw-bold mb-3">
+                Exam Details
+              </h5>
+              <ul class="list-unstyled">
+                <li class="mb-2">
+                  <strong>Exam:</strong> {{ result.exam.name }}
+                </li>
+                <li class="mb-2">
+                  <strong>Subject:</strong> {{ result.exam.subject }}
+                </li>
+                <li class="mb-2">
+                  <strong>Date:</strong> {{ result.date_taken|date:"F d, Y" }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Result Summary Table -->
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle text-center">
+              <thead class="bg-light">
+                <tr>
+                  <th class="py-3">Subject</th>
+                  <th class="py-3">Total Marks</th>
+                  <th class="py-3">Marks Obtained</th>
+                  <th class="py-3">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-4 fw-bold">{{ result.exam.subject }}</td>
+                  <td class="py-4">{{ result.total_marks|floatformat:0 }}</td>
+                  <td class="py-4 fs-5">{{ result.score|floatformat:0 }}</td>
+                  <td
+                    class="py-4 fw-bold text-{{ status|lower|yesno:'success,danger' }}"
+                  >
+                    {{ grade }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Performance Badge -->
+          <div class="row align-items-center justify-content-center mb-5 mt-4">
+            <div class="col-md-6 text-center">
+              <div
+                class="p-4 rounded border {% if status == 'Pass' %}border-success bg-success-subtle{% else %}border-danger bg-danger-subtle{% endif %}"
+              >
+                <h5 class="mb-2">Final Result</h5>
+                <h1
+                  class="display-4 fw-bold {% if status == 'Pass' %}text-success{% else %}text-danger{% endif %}"
+                >
+                  {{ status }}
+                </h1>
+                <p class="mb-0 fs-5">
+                  Percentage: {{ percentage|floatformat:2 }}%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer / Signature -->
+          <div class="row mt-5 pt-5">
+            <div class="col-6 text-center">
+              <div class="border-top border-dark w-75 mx-auto pt-2">
+                <p class="mb-0 small fw-bold">Instructor Signature</p>
+                <p class="text-muted small">
+                  {{ result.exam.created_by.get_full_name }}
+                </p>
+              </div>
+            </div>
+            <div class="col-6 text-center">
+              <div class="border-top border-dark w-75 mx-auto pt-2">
+                <p class="mb-0 small fw-bold">Controller of Examinations</p>
+                <p class="text-muted small">System Generated</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer text-center bg-light text-muted small py-3">
+          This is a computer-generated document and does not require a physical
+          signature.
+          <br />Generated on {% now "F d, Y H:i" %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #print-area,
+    #print-area * {
+      visibility: visible;
+    }
+    #print-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      box-shadow: none !important;
+      border: 1px solid #ddd !important;
+    }
+    .d-print-none {
+      display: none !important;
+    }
+  }
+  .bg-success-subtle {
+    background-color: #d1e7dd;
+  }
+  .bg-danger-subtle {
+    background-color: #f8d7da;
+  }
+</style>
+{% endblock %}
