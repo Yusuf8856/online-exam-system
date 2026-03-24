@@ -79,6 +79,13 @@ online-exam-system
 
 # ⚙️ Project Setup (For Team Members)
 
+## 0️⃣ Prerequisites
+
+Ensure you have the following installed on your machine:
+
+- **Python** (version 3.8 or higher)
+- **Git**
+
 ## 1️⃣ Clone Repository
 
 ```bash id="s1zzs1"

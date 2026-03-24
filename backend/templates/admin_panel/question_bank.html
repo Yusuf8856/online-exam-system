@@ -1,0 +1,102 @@
+{% extends 'base.html' %} {% block title %}Question Bank | Admin Panel
+{% endblock %} {% block content %}
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-3 col-lg-2 mb-4">
+    <div class="list-group shadow-sm">
+      <a
+        href="{% url 'admin_dashboard' %}"
+        class="list-group-item list-group-item-action"
+        >Dashboard</a
+      >
+      <a
+        href="{% url 'manage_teachers' %}"
+        class="list-group-item list-group-item-action"
+        >Manage Teachers</a
+      >
+      <a
+        href="{% url 'manage_students' %}"
+        class="list-group-item list-group-item-action"
+        >Manage Students</a
+      >
+      <a
+        href="{% url 'manage_exams' %}"
+        class="list-group-item list-group-item-action"
+        >Manage Exams</a
+      >
+      <a
+        href="{% url 'question_bank' %}"
+        class="list-group-item list-group-item-action active bg-primary border-primary"
+        >Question Bank</a
+      >
+      <a
+        href="{% url 'view_results' %}"
+        class="list-group-item list-group-item-action"
+        >View Results</a
+      >
+      <a
+        href="{% url 'admin_settings' %}"
+        class="list-group-item list-group-item-action"
+        >Settings</a
+      >
+      <a
+        href="{% url 'logout' %}"
+        class="list-group-item list-group-item-action text-danger"
+        >Logout</a
+      >
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="col-md-9 col-lg-10">
+    <div
+      class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom"
+    >
+      <h2>Question Bank</h2>
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <button class="btn btn-sm btn-primary">
+          <i class="fas fa-plus me-2"></i>Add Question
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive shadow-sm border rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Subject</th>
+            <th>Question Text</th>
+            <th>Marks</th>
+            <th>Answer</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for question in questions %}
+          <tr>
+            <td><span class="badge bg-info">{{ question.subject }}</span></td>
+            <td class="text-truncate" style="max-width: 300px">
+              {{ question.text }}
+            </td>
+            <td>{{ question.marks }}</td>
+            <td>{{ question.answer }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">No questions found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

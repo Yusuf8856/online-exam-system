@@ -1,0 +1,134 @@
+{% extends 'base.html' %} {% block title %}Teacher Dashboard | Online
+Examination System{% endblock %} {% block content %}
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-3 col-lg-2 mb-4">
+    <div class="list-group shadow-sm">
+      <a
+        href="{% url 'teacher_dashboard' %}"
+        class="list-group-item list-group-item-action active bg-success border-success"
+      >
+        Dashboard
+      </a>
+      <a
+        href="{% url 'exams:create_exam' %}"
+        class="list-group-item list-group-item-action"
+        >Create Exam</a
+      >
+      <a
+        href="{% url 'exams:teacher_question_bank' %}"
+        class="list-group-item list-group-item-action"
+        >Question Bank</a
+      >
+      <a
+        href="{% url 'exams:teacher_submissions' %}"
+        class="list-group-item list-group-item-action"
+        >View Submissions</a
+      >
+      <a
+        href="{% url 'profile' %}"
+        class="list-group-item list-group-item-action"
+        >My Profile</a
+      >
+      <a
+        href="{% url 'logout' %}"
+        class="list-group-item list-group-item-action text-danger"
+        >Logout</a
+      >
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="col-md-9 col-lg-10">
+    <div
+      class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom"
+    >
+      <h2>Teacher Overview</h2>
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'exams:create_exam' %}" class="btn btn-sm btn-success">
+          Create New Exam
+        </a>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="card text-white bg-primary shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">My Exams</h5>
+            <p class="card-text display-6 fw-bold">{{ my_exams_count }}</p>
+            <p class="card-text"><small>Total Created</small></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-danger shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Active Exams</h5>
+            <p class="card-text display-6 fw-bold">{{ active_exams_count }}</p>
+            <p class="card-text"><small>Currently Running</small></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-dark bg-warning shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Enrolled Students</h5>
+            <p class="card-text display-6 fw-bold">{{ students_count }}</p>
+            <p class="card-text"><small>In My Courses</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <h3 class="h4 mb-3">My Recent Exams</h3>
+    <div class="table-responsive shadow-sm border rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Exam Name</th>
+            <th>Subject</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exam in recent_exams %}
+          <tr>
+            <td><strong>{{ exam.name }}</strong></td>
+            <td>{{ exam.subject }}</td>
+            <td>{{ exam.date }}</td>
+            <td>
+              {% if exam.status == 'Active' %}
+              <span class="badge bg-success">Active</span>
+              {% elif exam.status == 'Scheduled' %}
+              <span class="badge bg-primary">Scheduled</span>
+              {% else %}
+              <span class="badge bg-secondary">Completed</span>
+              {% endif %}
+            </td>
+            <td>
+              <a
+                href="{% url 'exams:exam_detail' exam.id %}"
+                class="btn btn-sm btn-outline-primary"
+              >
+                View Details
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">
+              You have not created any exams yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %} {% block title %}Student Dashboard 
+{% endblock %} {% block content %}
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-3 col-lg-2 mb-4">
+    <div class="list-group shadow-sm">
+      <a
+        href="{% url 'students:dashboard' %}"
+        class="list-group-item list-group-item-action active bg-primary border-primary"
+        >Dashboard</a
+      >
+      <a
+        href="{% url 'students:available_exams' %}"
+        class="list-group-item list-group-item-action"
+        >Available Exams</a
+      >
+      <a
+        href="{% url 'students:my_results' %}"
+        class="list-group-item list-group-item-action"
+        >My Results</a
+      >
+      <a
+        href="{% url 'profile' %}"
+        class="list-group-item list-group-item-action"
+        >My Profile</a
+      >
+      <a
+        href="{% url 'logout' %}"
+        class="list-group-item list-group-item-action text-danger"
+        >Logout</a
+      >
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="col-md-9 col-lg-10">
+    <h2 class="pb-2 mb-4 border-bottom">Student Overview</h2>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="card text-white bg-success shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Completed Exams</h5>
+            <p class="card-text display-6 fw-bold">{{ completed_exams }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-info shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Upcoming Exams</h5>
+            <p class="card-text display-6 fw-bold">
+              {{ upcoming_exams_count }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-dark bg-warning shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Average Score</h5>
+            <p class="card-text display-6 fw-bold">{{ average_score }}%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Exams -->
+    <h3 class="h4 mb-3">Upcoming Exams</h3>
+    <div class="table-responsive shadow-sm border rounded mb-5">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Exam Name</th>
+            <th>Instructor</th>
+            <th>Date</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exam in upcoming_exams %}
+          <tr>
+            <td><strong>{{ exam.name }}</strong></td>
+            <td>
+              {{ exam.created_by.get_full_name|default:exam.created_by.username
+              }}
+            </td>
+            <td>{{ exam.date }}</td>
+            <td>{{ exam.duration }} mins</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">No upcoming exams.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent Results -->
+    <h3 class="h4 mb-3">My Recent Results</h3>
+    <div class="table-responsive shadow-sm border rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Exam</th>
+            <th>Score</th>
+            <th>Date Taken</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in recent_results %}
+          <tr>
+            <td><strong>{{ result.exam.name }}</strong></td>
+            <td>{{ result.score }} / {{ result.total_marks }}</td>
+            <td>{{ result.date_taken|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-center">
+              You have not completed any exams yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

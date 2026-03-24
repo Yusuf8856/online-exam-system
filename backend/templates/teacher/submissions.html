@@ -1,0 +1,78 @@
+{% extends 'base.html' %} {% block title %}Student Submissions {% endblock %} 
+{% block content %}
+<div class="container mt-4">
+  <a
+    href="javascript:history.back()"
+    class="btn btn-outline-secondary btn-sm mb-3"
+  >
+    <i class="fas fa-arrow-left me-1"></i> Back
+  </a>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'teacher_dashboard' %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        All Submissions
+      </li>
+    </ol>
+  </nav>
+
+  <h2 class="mb-4">Student Submissions</h2>
+  <p class="text-muted">A complete history of all attempts on your exams.</p>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% if results %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Student</th>
+              <th>Exam Name</th>
+              <th>Date Taken</th>
+              <th>Score</th>
+              <th>Total Marks</th>
+              <th>Percentage</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in results %}
+            <tr>
+              <td class="fw-bold">
+                {{ result.student.get_full_name|default:result.student.username }}
+              </td>
+              <td>{{ result.exam.name }}</td>
+              <td>{{ result.date_taken|date:"M d, Y H:i" }}</td>
+              <td>{{ result.score }}</td>
+              <td>{{ result.total_marks }}</td>
+              <td>
+                {% widthratio result.score result.total_marks 100 as percentage %}
+                <span class="badge bg-info text-dark"
+                  >{{ percentage|floatformat:2 }}%</span
+                >
+              </td>
+              <td>
+                {% if result.is_published %}
+                <a href="{% url 'exams:publish_result' result.id %}" class="btn btn-sm btn-success" title="Click to unpublish">
+                  <i class="fas fa-check-circle"></i> Published
+                </a>
+                {% else %}
+                <a href="{% url 'exams:publish_result' result.id %}" class="btn btn-sm btn-warning text-dark" title="Click to approve">
+                  <i class="fas fa-clock"></i> Approve
+                </a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-info">No submissions found for your exams.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

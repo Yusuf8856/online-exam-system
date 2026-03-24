@@ -1,0 +1,98 @@
+{% extends 'base.html' %} {% block title %}Edit Profile 
+{% endblock %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Edit Profile</h3>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-4">
+            <img
+              src="{{ user.profile.image.url }}"
+              alt="Profile Picture"
+              class="img-fluid rounded-circle"
+              style="width: 120px; height: 120px; object-fit: cover"
+            />
+          </div>
+
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="mb-4">
+              <legend class="h6 border-bottom pb-2 mb-3">
+                User Information
+              </legend>
+              {{ u_form.as_p }}
+            </fieldset>
+
+            <fieldset class="mb-4">
+              <legend class="h6 border-bottom pb-2 mb-3">
+                Contact & Profile Picture
+              </legend>
+              <div class="mb-3">
+                <label for="{{ p_form.phone_number.id_for_label }}"
+                  >{{ p_form.phone_number.label }}</label
+                >{{ p_form.phone_number }}
+              </div>
+              <div class="mb-3">
+                <label for="{{ p_form.image.id_for_label }}"
+                  >{{ p_form.image.label }}</label
+                >{{ p_form.image }}
+              </div>
+            </fieldset>
+
+            {% if user.profile.role == 'teacher' %}
+            <fieldset class="mb-4">
+              <legend class="h6 border-bottom pb-2 mb-3">
+                Professional Information
+              </legend>
+              <div class="mb-3">
+                <label for="{{ p_form.qualification.id_for_label }}"
+                  >{{ p_form.qualification.label }}</label
+                >{{ p_form.qualification }}
+              </div>
+              <div class="mb-3">
+                <label for="{{ p_form.trained_at.id_for_label }}"
+                  >{{ p_form.trained_at.label }}</label
+                >{{ p_form.trained_at }}
+              </div>
+            </fieldset>
+            {% endif %} {% if user.profile.role == 'student' %}
+            <fieldset class="mb-4">
+              <legend class="h6 border-bottom pb-2 mb-3">
+                Personal Information
+              </legend>
+              <div class="mb-3">
+                <label for="{{ p_form.gender.id_for_label }}"
+                  >{{ p_form.gender.label }}</label
+                >{{ p_form.gender }}
+              </div>
+              <div class="mb-3">
+                <label for="{{ p_form.dob.id_for_label }}"
+                  >{{ p_form.dob.label }}</label
+                >{{ p_form.dob }}
+              </div>
+              <div class="mb-3">
+                <label for="{{ p_form.address.id_for_label }}"
+                  >{{ p_form.address.label }}</label
+                >{{ p_form.address }}
+              </div>
+            </fieldset>
+            {% endif %}
+
+            <div class="d-flex justify-content-end">
+              <a href="{% url 'profile' %}" class="btn btn-secondary me-2"
+                >Cancel</a
+              >
+              <button type="submit" class="btn btn-primary">
+                Update Profile
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

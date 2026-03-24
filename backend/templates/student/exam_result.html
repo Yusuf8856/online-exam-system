@@ -1,0 +1,63 @@
+{% extends 'base.html' %} {% block title %}Exam Result 
+{% endblock %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card text-center shadow">
+        <div class="card-header bg-success text-white">
+          <h3>Result: {{ result.exam.name }}</h3>
+        </div>
+        <div class="card-body">
+          {% if not result.is_published %}
+          <div class="alert alert-warning">
+            <h4 class="alert-heading">Result Pending</h4>
+            <p class="mb-0">Your exam has been submitted. The official report will be available once approved by the instructor.</p>
+          </div>
+          {% else %}
+
+          {% if percentage >= 50 %}
+          <h1 class="display-1 text-success">
+            <i class="fas fa-check-circle"></i>
+          </h1>
+          <h4 class="card-title">Congratulations! You Passed!</h4>
+          {% else %}
+          <h1 class="display-1 text-danger">
+            <i class="fas fa-times-circle"></i>
+          </h1>
+          <h4 class="card-title">Better Luck Next Time</h4>
+          {% endif %}
+
+          <p class="display-4 my-4">
+            {{ result.score|floatformat:0 }} / {{ result.total_marks|floatformat:0 }}
+          </p>
+
+          <div class="progress" style="height: 30px">
+            <div
+              class="progress-bar {% if percentage >= 50 %}bg-success{% else %}bg-danger{% endif %}"
+              role="progressbar"
+              style="width: {{ percentage }}%;"
+              aria-valuenow="{{ percentage }}"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              {{ percentage|floatformat:2 }}%
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="mt-4">
+            <a
+              href="{% url 'students:available_exams' %}"
+              class="btn btn-primary"
+              >Back to Exams</a
+            >
+            <a href="{% url 'students:dashboard' %}" class="btn btn-secondary"
+              >Go to Dashboard</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
