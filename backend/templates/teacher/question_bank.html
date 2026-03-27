@@ -1,78 +1,125 @@
-{% extends 'base.html' %} {% block title %}My Question Bank 
-{% endblock %} {% block content %}
+{% extends 'base.html' %}
+{% block title %}My Question Bank | Teacher Panel{% endblock %}
+{% block content %}
 <div class="container mt-4">
-  <a
-    href="javascript:history.back()"
-    class="btn btn-outline-secondary btn-sm mb-3"
-  >
-    <i class="fas fa-arrow-left me-1"></i> Back
-  </a>
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="{% url 'teacher_dashboard' %}">Dashboard</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        My Question Bank
-      </li>
-    </ol>
-  </nav>
-
-  <h2 class="mb-4">My Question Bank</h2>
-  <p>
-    This page lists all the questions you have created across all your exams.
-  </p>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      {% if questions %}
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>Question Text</th>
-              <th>Exam</th>
-              <th>Marks</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for question in questions %}
-            <tr>
-              <td>{{ question.text|truncatechars:70 }}</td>
-              <td>
-                <a href="{% url 'exams:exam_detail' question.exam.id %}"
-                  >{{ question.exam.name }}</a
-                >
-              </td>
-              <td>{{ question.marks }}</td>
-              <td>
-                <a
-                  href="{% url 'exams:edit_question' question.id %}"
-                  class="btn btn-sm btn-warning"
-                  >Edit</a
-                >
-                <a
-                  href="{% url 'exams:delete_question' question.id %}"
-                  class="btn btn-sm btn-danger"
-                  onclick="
-                    return confirm(
-                      'Are you sure you want to delete this question?',
-                    );
-                  "
-                  >Delete</a
-                >
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <div class="row">
+    <!-- Sidebar (Consistent with Dashboard) -->
+    <div class="col-md-3 col-lg-2 mb-4">
+      <div class="list-group shadow-sm">
+        <a href="{% url 'teacher_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
+        <a href="{% url 'exams:create_exam' %}" class="list-group-item list-group-item-action">Create Exam</a>
+        <a href="{% url 'exams:teacher_question_bank' %}"
+          class="list-group-item list-group-item-action active bg-success border-success">Question Bank</a>
+        <a href="{% url 'exams:teacher_submissions' %}" class="list-group-item list-group-item-action">View
+          Submissions</a>
+        <a href="{% url 'my_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
+        <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
       </div>
-      {% else %}
-      <div class="alert alert-info">
-        You have not created any questions yet.
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9 col-lg-10">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="h3 mb-0 text-gray-800">My Question Bank</h2>
+          <p class="text-muted small mb-0">Review and manage questions across your exams</p>
+        </div>
+        <div class="d-flex gap-2">
+          <div class="card bg-success text-white px-3 py-1 shadow-sm d-flex justify-content-center align-items-center">
+            <small class="fw-bold">Total: {{ total_questions }}</small>
+          </div>
+          <a href="{% url 'teacher_dashboard' %}"
+            class="btn btn-outline-success shadow-sm btn-sm d-flex align-items-center">
+            <i class="fas fa-plus-circle me-1"></i> Add via Exam
+          </a>
+        </div>
       </div>
-      {% endif %}
+
+      <!-- Search and Filter -->
+      <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body bg-light rounded">
+          <form method="GET" class="row g-3">
+            <div class="col-md-9">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" name="q" class="form-control border-start-0" placeholder="Search your questions..."
+                  value="{{ request.GET.q }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-success w-100">Filter</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-success text-white">
+              <tr>
+                <th class="ps-4" style="width: 50%">Question Details</th>
+                <th style="width: 20%">Exam</th>
+                <th class="text-center" style="width: 10%">Marks</th>
+                <th class="text-center" style="width: 20%">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% regroup questions by exam.subject as subject_list %}
+              {% for subject in subject_list %}
+              <tr class="bg-light border-start border-success border-4">
+                <td colspan="4" class="py-2 ps-3">
+                  <span class="text-success fw-bold text-uppercase small"><i class="fas fa-layer-group me-2"></i>
+                    {{ subject.grouper }}
+                  </span>
+                  <span class="badge rounded-pill bg-success ms-2">{{ subject.list|length }} Items</span>
+                </td>
+              </tr>
+              {% for question in subject.list %}
+              <tr>
+                <td class="ps-4">
+                  <div class="fw-bold text-dark">{{ question.text }}</div>
+                  <div class="text-muted small">ID: #Q-{{ question.id }}</div>
+                </td>
+                <td>
+                  <a href="{% url 'exams:exam_detail' question.exam.id %}" class="text-decoration-none">
+                    <span class="badge bg-outline-success text-success border border-success">
+                      {{ question.exam.name }}
+                    </span>
+                  </a>
+                </td>
+                <td class="text-center fw-bold text-success">{{ question.marks }}</td>
+                <td class="text-center">
+                  <div class="btn-group shadow-sm">
+                    <a href="{% url 'exams:edit_question' question.id %}"
+                      class="btn btn-sm btn-white border text-primary" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'exams:delete_question' question.id %}"
+                      class="btn btn-sm btn-white border text-danger"
+                      onclick="return confirm('Are you sure you want to delete this question?');" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center py-5">
+                  <div class="mb-3">
+                    <i class="fas fa-search-minus fa-3x text-muted"></i>
+                  </div>
+                  <p class="text-muted fw-bold">No questions found matching your search.</p>
+                  <a href="{% url 'exams:teacher_question_bank' %}" class="btn btn-sm btn-outline-secondary">Clear
+                    Filter</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>

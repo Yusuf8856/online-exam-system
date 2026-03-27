@@ -138,3 +138,12 @@ BASE_DIR / "static"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Session expiry (1 hour)
+SESSION_COOKIE_AGE = 3600  
+
+# Logout when browser closes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
+
+# Refresh session on activity
+SESSION_SAVE_EVERY_REQUEST = True  

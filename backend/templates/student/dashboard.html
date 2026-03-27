@@ -20,7 +20,7 @@
         >My Results</a
       >
       <a
-        href="{% url 'profile' %}"
+        href="{% url 'my_profile' %}"
         class="list-group-item list-group-item-action"
         >My Profile</a
       >
@@ -83,8 +83,7 @@
           <tr>
             <td><strong>{{ exam.name }}</strong></td>
             <td>
-              {{ exam.created_by.get_full_name|default:exam.created_by.username
-              }}
+              {{ exam.created_by.get_full_name|default:exam.created_by.username }}
             </td>
             <td>{{ exam.date }}</td>
             <td>{{ exam.duration }} mins</td>

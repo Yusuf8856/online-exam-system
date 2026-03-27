@@ -10,7 +10,7 @@
         <div class="card-body">
           <div class="text-center mb-4">
             <img
-              src="{{ user.profile.image.url }}"
+              src="{{ editing_user.profile.image.url }}"
               alt="Profile Picture"
               class="img-fluid rounded-circle"
               style="width: 120px; height: 120px; object-fit: cover"
@@ -42,7 +42,7 @@
               </div>
             </fieldset>
 
-            {% if user.profile.role == 'teacher' %}
+            {% if editing_user.profile.role == 'teacher' %}
             <fieldset class="mb-4">
               <legend class="h6 border-bottom pb-2 mb-3">
                 Professional Information
@@ -58,7 +58,7 @@
                 >{{ p_form.trained_at }}
               </div>
             </fieldset>
-            {% endif %} {% if user.profile.role == 'student' %}
+            {% endif %} {% if editing_user.profile.role == 'student' %}
             <fieldset class="mb-4">
               <legend class="h6 border-bottom pb-2 mb-3">
                 Personal Information
@@ -79,10 +79,10 @@
                 >{{ p_form.address }}
               </div>
             </fieldset>
-            {% endif %}
+            {% endif %} {# End if editing_user.profile.role == 'student' #}
 
             <div class="d-flex justify-content-end">
-              <a href="{% url 'profile' %}" class="btn btn-secondary me-2"
+              <a href="javascript:history.back()" class="btn btn-secondary me-2"
                 >Cancel</a
               >
               <button type="submit" class="btn btn-primary">

@@ -12,8 +12,11 @@ urlpatterns = [
     path('dashboard/admin/question-bank/', views.question_bank, name='question_bank'),
     path('dashboard/admin/results/', views.view_results, name='view_results'),
     path('dashboard/admin/settings/', views.admin_settings, name='admin_settings'),
+    path('dashboard/admin/user/delete/<int:user_id>/', views.delete_user, name='delete_user'),
+    path('dashboard/admin/exam/delete/<int:exam_id>/', views.delete_exam_admin, name='delete_exam_admin'),
     path('dashboard/teacher/', views.teacher_dashboard, name='teacher_dashboard'),
-    path('profile/', views.profile_view, name='profile'),
-    path('profile/edit/', views.edit_profile_view, name='edit_profile'),
+    path('profile/', views.profile_view, name='my_profile'), # Renamed for clarity
+    path('profile/<int:user_id>/', views.profile_view, name='user_profile'), # For viewing specific user profiles
+    path('profile/edit/<int:user_id>/', views.edit_profile_view, name='edit_profile'),
     path('logout/', views.logout_view, name='logout'),
 ]
