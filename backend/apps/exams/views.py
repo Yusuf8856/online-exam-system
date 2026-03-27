@@ -133,9 +133,18 @@ def teacher_question_bank(request):
         messages.error(request, "You are not authorized to view this page.")
         return redirect('home')
 
-    teacher_questions = Question.objects.filter(exam__created_by=request.user).order_by('exam__name', 'text')
+    query = request.GET.get('q')
+    # Order by subject for regrouping in the template
+    questions = Question.objects.filter(exam__created_by=request.user).select_related('exam').order_by('exam__subject', 'text')
+
+    if query:
+        questions = questions.filter(text__icontains=query)
+
+    total_questions = questions.count()
+
     context = {
-        'questions': teacher_questions
+        'questions': questions,
+        'total_questions': total_questions
     }
     return render(request, 'teacher/question_bank.html', context)
 

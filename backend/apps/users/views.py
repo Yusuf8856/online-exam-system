@@ -67,6 +67,12 @@ def register_view(request):
 
 @login_required(login_url='login')
 def admin_dashboard(request):
+    # Authorization check
+    is_admin = (hasattr(request.user, 'profile') and request.user.profile.role == 'admin') or request.user.is_superuser
+    if not is_admin:
+        messages.error(request, "You are not authorized to view the admin dashboard.")
+        return redirect('home')
+
     # Fetch real-time statistics from the database
     total_students = User.objects.filter(profile__role='student').count()
     total_teachers = User.objects.filter(profile__role='teacher').count()
@@ -124,10 +130,40 @@ def manage_exams(request):
     return render(request, 'admin_panel/manage_exams.html', context)
 
 @login_required(login_url='login')
+def delete_user(request, user_id):
+    if not request.user.is_superuser:
+        messages.error(request, "Unauthorized access.")
+        return redirect('home')
+    user = get_object_or_404(User, id=user_id)
+    role = user.profile.role
+    user.delete()
+    messages.success(request, f"User deleted successfully.")
+    return redirect('manage_teachers' if role == 'teacher' else 'manage_students')
+
+@login_required(login_url='login')
+def delete_exam_admin(request, exam_id):
+    if not request.user.is_superuser:
+        messages.error(request, "Unauthorized access.")
+        return redirect('home')
+    from apps.exams.models import Exam
+    exam = get_object_or_404(Exam, id=exam_id)
+    exam.delete()
+    messages.success(request, "Exam deleted successfully.")
+    return redirect('manage_exams')
+
+@login_required(login_url='login')
 def question_bank(request):
-    questions = Question.objects.all()
+    query = request.GET.get('q')
+    questions = Question.objects.select_related('exam').order_by('exam__subject')
+    
+    if query:
+        questions = questions.filter(text__icontains=query)
+    
+    total_questions = questions.count()
+    
     context = {
-        'questions': questions
+        'questions': questions,
+        'total_questions': total_questions
     }
     return render(request, 'admin_panel/question_bank.html', context)
 
@@ -192,28 +228,47 @@ def logout_view(request):
     return redirect('home')
 
 @login_required(login_url='login')
-def profile_view(request):
-    # This view now only displays the profile information.
-    return render(request, 'teacher/profile.html', {'user': request.user})
+def profile_view(request, user_id=None):
+    if user_id:
+        # If user_id is provided, fetch that user's profile
+        profile_owner = get_object_or_404(User, id=user_id)
+        # Authorization: Only admin can view other profiles directly via ID
+        if not request.user.is_superuser and request.user.id != profile_owner.id:
+            messages.error(request, "You are not authorized to view this profile.")
+            return redirect('home')
+    else:
+        # If no user_id, show the logged-in user's profile
+        profile_owner = request.user
+    
+    return render(request, 'teacher/profile.html', {'user': profile_owner})
 
 @login_required(login_url='login')
-def edit_profile_view(request):
+def edit_profile_view(request, user_id):
+    # Fetch the user we want to edit
+    user_to_edit = get_object_or_404(User, id=user_id)
+
+    # Security: Only allow admins to edit others. Non-admins can only edit themselves.
+    if not request.user.is_superuser and request.user.id != user_to_edit.id:
+        messages.error(request, "You are not authorized to edit this profile.")
+        return redirect('home')
+
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
+        u_form = UserUpdateForm(request.POST, instance=user_to_edit)
         p_form = ProfileUpdateForm(request.POST,
                                    request.FILES,
-                                   instance=request.user.profile)
+                                   instance=user_to_edit.profile)
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
-            messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('profile')
+            messages.success(request, f'Profile for {user_to_edit.username} has been updated!')
+            return redirect('manage_teachers' if user_to_edit.profile.role == 'teacher' else 'manage_students') if request.user.is_superuser else redirect('my_profile')
     else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)
+        u_form = UserUpdateForm(instance=user_to_edit)
+        p_form = ProfileUpdateForm(instance=user_to_edit.profile)
 
     context = {
         'u_form': u_form,
-        'p_form': p_form
+        'p_form': p_form,
+        'editing_user': user_to_edit
     }
     return render(request, 'teacher/edit_profile.html', context)

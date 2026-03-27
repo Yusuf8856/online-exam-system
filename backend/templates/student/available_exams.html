@@ -18,9 +18,9 @@
           <h6 class="card-subtitle mb-2 text-muted">{{ exam.subject }}</h6>
           <p class="card-text">
             <small
-              >By: {{
-              exam.created_by.get_full_name|default:exam.created_by.username
-              }}</small
+              >
+              <b>Created By:</b> {{ exam.created_by.get_full_name|default:exam.created_by.username }}
+              </small
             >
           </p>
           <ul class="list-unstyled mt-3 mb-4">
