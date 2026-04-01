@@ -9,6 +9,7 @@ class Exam(models.Model):
     start_time = models.TimeField()
     duration = models.IntegerField(help_text="Duration in minutes")
     total_marks = models.IntegerField(default=100)
+    instructions = models.TextField(blank=True, null=True, help_text="Enter specific rules or guidelines for this exam.")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_exams')
     
     def __str__(self):

@@ -60,30 +60,36 @@ System{% endblock %} {% block content %}
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const roleField = document.querySelector('select[name="role"]');
-    const studentRegField = document.getElementById(
-      "div_id_student_reg_number",
-    );
-    const teacherIdField = document.getElementById("div_id_teacher_id");
+  document.addEventListener('DOMContentLoaded', function () {
+      const roleSelect = document.getElementById('id_role');
+      const roleFields = document.querySelectorAll('[data-role]');
 
-    function toggleFields() {
-      const role = roleField.value;
-      // Hide both by default
-      studentRegField.style.display = "none";
-      teacherIdField.style.display = "none";
+      function toggleRoleFields() {
+        const selectedRole = roleSelect.value;
 
-      if (role === "student") {
-        studentRegField.style.display = "block";
-      } else if (role === "teacher") {
-        teacherIdField.style.display = "block";
+        roleFields.forEach(field => {
+          // Find the parent container (usually a div with class 'mb-3' or 'form-group')
+          const container = field.closest('.mb-3') || field.parentElement;
+          const fieldRole = field.getAttribute('data-role');
+
+          if (!selectedRole) {
+            // Hide everything if no role is selected
+            container.style.display = 'none';
+          } else if (fieldRole === selectedRole) {
+            // Show fields matching the selected role
+            container.style.display = 'block';
+          } else {
+            // Hide fields meant for the other role
+            container.style.display = 'none';
+          }
+        });
       }
-    }
 
-    if (roleField) {
-      roleField.addEventListener("change", toggleFields);
-      toggleFields(); // Run on load to set initial state
-    }
-  });
+      if (roleSelect) {
+        roleSelect.addEventListener('change', toggleRoleFields);
+        toggleRoleFields(); // Run once on page load to set initial state
+      }
+    });
+
 </script>
 {% endblock %}

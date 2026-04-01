@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Exam Guidelines: {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">Exam Guidelines: {{ exam.name }}</h3>
+                    <p class="mb-0">{{ exam.subject }}</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="mb-4 text-primary">Important Information</h4>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Exam Name:</strong>
+                            <span>{{ exam.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Subject:</strong>
+                            <span>{{ exam.subject }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Date:</strong>
+                            <span>{{ exam.date|date:"F d, Y" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Duration:</strong>
+                            <span>{{ exam.duration }} minutes</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Total Marks:</strong>
+                            <span>{{ total_marks }} Marks ({{ exam.questions.count }} Questions)</span>
+                        </li>
+                    </ul>
+
+                    <h4 class="mb-3 text-primary">Rules & Regulations</h4>
+                    <div class="alert alert-info small" role="alert">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Please Read Carefully:</h6>
+                        {% if exam.instructions %}
+                        <div class="instructions-content">
+                            {{ exam.instructions|linebreaks }}
+                        </div>
+                        {% else %}
+                        <ul class="mb-0 ps-3">
+                            <li>Ensure you have a stable internet connection.</li>
+                            <li>Do not refresh the page during the exam.</li>
+                            <li>Do not navigate away from the exam window.</li>
+                            <li>Once you start the exam, the timer will begin immediately.</li>
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" value="" id="agreeTerms">
+                        <label class="form-check-label" for="agreeTerms">
+                            I have read and understood all the guidelines and disclaimers.
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'students:available_exams' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Exams
+                        </a>
+                        <a href="{% url 'students:take_exam' exam.id %}" class="btn btn-success btn-lg"
+                            id="startExamBtn" disabled>
+                            <i class="fas fa-play-circle me-2"></i>Proceed to Exam
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('agreeTerms').addEventListener('change', function () {
+        document.getElementById('startExamBtn').disabled = !this.checked;
+        document.getElementById('startExamBtn').href = "{% url 'students:take_exam' exam.id %}";
+    });
+</script>
+{% endblock %}

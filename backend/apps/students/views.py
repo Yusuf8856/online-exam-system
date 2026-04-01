@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Sum
 from apps.exams.models import Exam
 from apps.results.models import Result
 
@@ -17,23 +18,23 @@ def student_dashboard(request):
 
     # Fetch data
     all_results = Result.objects.filter(student=student)
-    completed_exams_count = all_results.count()
+    # Only count exams that have been officially graded/published as "Completed"
+    completed_exams_count = all_results.filter(is_published=True).count()
     
     # Upcoming exams are those with a future date that the student has NOT taken yet
     taken_exam_ids = all_results.values_list('exam_id', flat=True)
     upcoming_exams = Exam.objects.filter(date__gte=timezone.now().date()).exclude(id__in=taken_exam_ids).order_by('date', 'start_time')
     
-    # Calculate average score
-    total_score = 0
-    total_possible_marks = 0
-    for res in all_results:
-        total_score += res.score
-        total_possible_marks += res.total_marks
-    
-    average_score = 0
-    if total_possible_marks > 0:
-        average_score = (total_score / total_possible_marks) * 100
+    # Only include published results in the average score calculation
+    # This prevents unpublished/pending results from affecting the student's dashboard stats
+    stats = all_results.filter(is_published=True).aggregate(
+        total_earned=Sum('score'),
+        total_possible=Sum('total_marks')
+    )
 
+    total_possible = stats.get('total_possible') or 0
+    average_score = (stats.get('total_earned') or 0) / total_possible * 100 if total_possible > 0 else 0
+    
     context = {
         'completed_exams': completed_exams_count,
         'upcoming_exams_count': upcoming_exams.count(),
@@ -54,6 +55,30 @@ def available_exams_view(request):
     return render(request, 'student/available_exams.html', context)
 
 @login_required(login_url='login')
+def exam_guidelines_view(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+
+    # Authorization: Ensure student is logged in and exam is available
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'student':
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('home')
+    
+    # Check if the exam date has passed or if the student has already taken it
+    if exam.date < timezone.now().date() or Result.objects.filter(student=request.user, exam=exam).exists():
+        messages.warning(request, "This exam is no longer available or you have already completed it.")
+        return redirect('students:available_exams')
+
+    # Calculate total possible marks for this specific exam
+    total_marks = exam.questions.aggregate(total=Sum('marks'))['total'] or 0
+
+    context = {
+        'exam': exam,
+        'total_marks': total_marks
+    }
+    return render(request, 'student/exam_guidelines.html', context)
+
+
+@login_required(login_url='login')
 def take_exam_view(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     questions = exam.questions.all().order_by('?') # Randomize question order
@@ -62,42 +87,72 @@ def take_exam_view(request, exam_id):
         messages.warning(request, "You have already completed this exam.")
         return redirect('students:available_exams')
 
+    # Record start time in session if not present to track duration
+    session_key = f'exam_start_{exam.id}'
+    if session_key not in request.session:
+        request.session[session_key] = timezone.now().isoformat()
+
+    # Calculate remaining time for the frontend timer
+    start_time = timezone.datetime.fromisoformat(request.session.get(session_key))
+    elapsed_seconds = (timezone.now() - start_time).total_seconds()
+    total_seconds = exam.duration * 60
+    time_left = max(0, int(total_seconds - elapsed_seconds))
+
     if request.method == 'POST':
+        # Server-side duration validation
+        start_time_str = request.session.get(session_key)
+        if start_time_str:
+            start_time = timezone.datetime.fromisoformat(start_time_str)
+            elapsed_time = (timezone.now() - start_time).total_seconds() / 60
+            # Allow a small buffer (e.g., 2 minutes) for network latency
+            if elapsed_time > (exam.duration + 2):
+                messages.error(request, "Submission rejected: Time limit exceeded.")
+                return redirect('students:available_exams')
+
         score = 0
         total_marks = 0
         for question in questions:
             total_marks += question.marks
-            selected_answer = request.POST.get(f'question_{question.id}')
-            if selected_answer and selected_answer.strip() == question.answer.strip():
+            selected_answer = request.POST.get(f'question_{question.id}', '').strip()
+            if selected_answer == question.answer.strip():
                 score += question.marks
         
         new_result = Result.objects.create(
             student=request.user,
             exam=exam,
             score=score,
-            total_marks=total_marks
+            total_marks=total_marks,
+            is_published=False # Explicitly ensure it is pending approval
         )
-        messages.success(request, f"You have successfully submitted the exam '{exam.name}'.")
+        
+        # Clean up session
+        del request.session[session_key]
+        
+        messages.success(request, f"Exam '{exam.name}' submitted successfully. Your results will be available once approved by the teacher.")
         # Redirect to the result page using the new result's ID to avoid race conditions
         return redirect('students:exam_result', result_id=new_result.id)
 
-    context = {'exam': exam, 'questions': questions}
+    context = {
+        'exam': exam, 
+        'questions': questions,
+        'time_left': time_left
+    }
     return render(request, 'student/take_exam.html', context)
 
 @login_required(login_url='login')
 def exam_result_view(request, result_id):
     result = get_object_or_404(Result, id=result_id, student=request.user)
     
-    # If not published, pass a flag to the template to show a "Pending" message
-    # unless it's an immediate redirect from the exam (optional logic, but typically reports need approval)
-    # For this implementation, we allow the basic view but hide details if strict approval is needed,
-    # or we rely on the template to show "Awaiting Approval".
-    
     percentage = 0
-    if result.total_marks > 0:
+    # Only calculate percentage if the result has been published by the teacher
+    if result.is_published and result.total_marks > 0:
         percentage = (result.score / result.total_marks) * 100
     
-    context = {'result': result, 'percentage': percentage}
+    context = {
+        'result': result, 
+        'percentage': percentage,
+        'is_published': result.is_published
+    }
     return render(request, 'student/exam_result.html', context)
 
 @login_required(login_url='login')

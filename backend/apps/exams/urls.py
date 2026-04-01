@@ -13,5 +13,7 @@ urlpatterns = [
     path('question/<int:question_id>/edit/', views.edit_question, name='edit_question'),
     path('question/<int:question_id>/delete/', views.delete_question, name='delete_question'),
     path('<int:result_id>/publish/', views.publish_result, name='publish_result'),
+    path('<int:exam_id>/edit/', views.edit_exam, name='edit_exam'),
+
 
 ]

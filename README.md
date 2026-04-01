@@ -1,7 +1,7 @@
-# 🎓 Online Examination System
+# 🎓 Digital Assessment Platform
 
-A **web-based Online Examination System** built using **Django (Backend)** and **HTML, CSS, Bootstrap (Frontend)**.
-This system allows educational institutions to manage exams digitally, enabling teachers to create exams and students to participate online.
+A **comprehensive Digital Assessment Platform** built using **Django (Backend)** and **HTML, CSS, Bootstrap (Frontend)**.
+This system enables educational institutions to orchestrate the full lifecycle of examinations, from digital question bank management to automated performance analytics.
 
 ---
 
@@ -222,7 +222,32 @@ git push origin students-module
 
 ---
 
-# 📊 Documentation
+# 🔄 System Architecture (DFD)
+
+### Level 0: Context
+
+- **Students**: Submit attempts, receive results.
+- **Teachers**: Manage students, create exams, analyze performance.
+- **Admins**: Oversight and system configuration.
+
+### Level 1: Core Processes
+
+1. **Identity & Access**: Role-based redirection (Student/Teacher/Admin).
+2. **Content Orchestration**: Management of Exams and Question banks.
+3. **Execution Engine**: Real-time randomized exam delivery and capture.
+4. **Analytics Pipeline**: Automated grading and report generation.
+
+---
+
+# 📊 Database Schema (ERD)
+
+- **User ↔ Profile**: 1:1 Relationship (Role management).
+- **Exam ↔ Question**: 1:N Relationship (Content structure).
+- **Exam/Student ↔ Result**: N:M through Result (Performance tracking).
+
+---
+
+# � Documentation
 
 All project documentation is stored in:
 
