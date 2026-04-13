@@ -18,12 +18,16 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from apps.students import views as student_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.users.urls')),
     path('dashboard/student/', include('apps.students.urls')),
     path('dashboard/teacher/exams/', include('apps.exams.urls')),
+
+    # Global API endpoint for logging proctoring violations
+    path('api/log-violation/', student_views.log_violation_api, name='log_violation_api'),
 
 ]
 

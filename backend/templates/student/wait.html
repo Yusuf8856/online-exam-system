@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Exam Waiting Room{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-info text-center">
+        <h2 class="mb-3">Exam will start soon</h2>
+        <p class="lead">Please wait. The exam will begin at the scheduled time.</p>
+        <div class="display-4 my-4">
+            <span id="wait-timer"></span>
+        </div>
+        <p class="text-muted">This page will refresh automatically when the exam starts.</p>
+    </div>
+</div>
+<script>
+    let seconds = {{ seconds_to_start }};
+    function updateWaitTimer() {
+        let min = Math.floor(seconds / 60);
+        let sec = seconds % 60;
+        document.getElementById('wait-timer').innerText = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        if (seconds <= 0) {
+            location.reload();
+        }
+        seconds--;
+    }
+    setInterval(updateWaitTimer, 1000);
+    updateWaitTimer();
+</script>
+{% endblock %}

@@ -1,3 +1,37 @@
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+import json
+
+# --- API: Log Proctoring Violation ---
+@csrf_exempt
+@login_required(login_url='login')
+def log_violation_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            violation_type = data.get('type')
+            details = data.get('details', '')
+            count = data.get('count', 1)
+            exam_id = request.session.get('current_exam_id')
+            if not exam_id:
+                return JsonResponse({'error': 'No exam context'}, status=400)
+            from apps.exams.models import Exam
+            exam = Exam.objects.get(id=exam_id)
+            ViolationLog = globals().get('ViolationLog')
+            if ViolationLog is None:
+                from .models import ViolationLog
+            ViolationLog.objects.create(
+                student=request.user,
+                exam=exam,
+                violation_type=violation_type,
+                details=details,
+                count=count
+            )
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -71,73 +105,112 @@ def exam_guidelines_view(request, exam_id):
     # Calculate total possible marks for this specific exam
     total_marks = exam.questions.aggregate(total=Sum('marks'))['total'] or 0
 
+    # Calculate end time
+    from datetime import datetime, timedelta
+    tz = timezone.get_current_timezone()
+    start_dt = timezone.make_aware(datetime.combine(exam.date, exam.start_time), tz)
+    end_dt = start_dt + timedelta(minutes=exam.duration)
+
     context = {
         'exam': exam,
-        'total_marks': total_marks
+        'total_marks': total_marks,
+        'end_time': end_dt.time(),
     }
     return render(request, 'student/exam_guidelines.html', context)
 
 
+
 @login_required(login_url='login')
 def take_exam_view(request, exam_id):
+    from datetime import datetime, timedelta
     exam = get_object_or_404(Exam, id=exam_id)
-    questions = exam.questions.all().order_by('?') # Randomize question order
+    questions = exam.questions.all().order_by('?')
 
+    # Check if already submitted
     if Result.objects.filter(student=request.user, exam=exam).exists():
         messages.warning(request, "You have already completed this exam.")
         return redirect('students:available_exams')
 
-    # Record start time in session if not present to track duration
-    session_key = f'exam_start_{exam.id}'
-    if session_key not in request.session:
-        request.session[session_key] = timezone.now().isoformat()
+    # Compute exam timing
 
-    # Calculate remaining time for the frontend timer
-    start_time = timezone.datetime.fromisoformat(request.session.get(session_key))
-    elapsed_seconds = (timezone.now() - start_time).total_seconds()
-    total_seconds = exam.duration * 60
-    time_left = max(0, int(total_seconds - elapsed_seconds))
+    # Always use timezone-aware datetimes
+    now = timezone.localtime()
+    exam_date = exam.date
+    tz = timezone.get_current_timezone()
+    start_dt = timezone.make_aware(datetime.combine(exam_date, exam.start_time), tz)
+    end_dt = start_dt + timedelta(minutes=exam.duration)
+    open_dt = start_dt - timedelta(minutes=20)
 
-    if request.method == 'POST':
-        # Server-side duration validation
-        start_time_str = request.session.get(session_key)
-        if start_time_str:
-            start_time = timezone.datetime.fromisoformat(start_time_str)
-            elapsed_time = (timezone.now() - start_time).total_seconds() / 60
-            # Allow a small buffer (e.g., 2 minutes) for network latency
-            if elapsed_time > (exam.duration + 2):
-                messages.error(request, "Submission rejected: Time limit exceeded.")
-                return redirect('students:available_exams')
+    # Debug: print timing info
+    print('DEBUG: now:', now)
+    print('DEBUG: open_dt:', open_dt)
+    print('DEBUG: start_dt:', start_dt)
+    print('DEBUG: end_dt:', end_dt)
 
-        score = 0
-        total_marks = 0
-        for question in questions:
-            total_marks += question.marks
-            selected_answer = request.POST.get(f'question_{question.id}', '').strip()
-            if selected_answer == question.answer.strip():
-                score += question.marks
-        
-        new_result = Result.objects.create(
-            student=request.user,
-            exam=exam,
-            score=score,
-            total_marks=total_marks,
-            is_published=False # Explicitly ensure it is pending approval
-        )
-        
-        # Clean up session
-        del request.session[session_key]
-        
-        messages.success(request, f"Exam '{exam.name}' submitted successfully. Your results will be available once approved by the teacher.")
-        # Redirect to the result page using the new result's ID to avoid race conditions
-        return redirect('students:exam_result', result_id=new_result.id)
+    # Not open yet
+    if now < open_dt:
+        print('DEBUG: Exam not open yet (show closed.html)')
+        return render(request, 'student/closed.html', {'exam': exam, 'reason': 'not_open'})
+    # Waiting period
+    elif open_dt <= now < start_dt:
+        print('DEBUG: In waiting window (show wait.html)')
+        seconds_to_start = int((start_dt - now).total_seconds())
+        return render(request, 'student/wait.html', {'exam': exam, 'seconds_to_start': seconds_to_start})
+    # Exam running
+    elif start_dt <= now < end_dt:
+        print('DEBUG: Exam running (show take_exam.html)')
+        # Record start time in session if not present
+        session_key = f'exam_start_{exam.id}'
+        if session_key not in request.session:
+            request.session[session_key] = now.isoformat()
+        # Set current_exam_id in session ONLY during exam attempt
+        request.session['current_exam_id'] = exam.id
+        start_time = timezone.datetime.fromisoformat(request.session.get(session_key))
+        elapsed_seconds = (now - start_time).total_seconds()
+        total_seconds = exam.duration * 60
+        time_left = max(0, int(total_seconds - elapsed_seconds))
 
-    context = {
-        'exam': exam, 
-        'questions': questions,
-        'time_left': time_left
-    }
-    return render(request, 'student/take_exam.html', context)
+        if request.method == 'POST':
+            # Server-side duration validation
+            start_time_str = request.session.get(session_key)
+            if start_time_str:
+                start_time = timezone.datetime.fromisoformat(start_time_str)
+                elapsed_time = (now - start_time).total_seconds() / 60
+                if elapsed_time > (exam.duration + 2):
+                    messages.error(request, "Submission rejected: Time limit exceeded.")
+                    return redirect('students:available_exams')
+            score = 0
+            total_marks = 0
+            for question in questions:
+                total_marks += question.marks
+                selected_answer = request.POST.get(f'question_{question.id}', '').strip()
+                if selected_answer == question.answer.strip():
+                    score += question.marks
+            new_result = Result.objects.create(
+                student=request.user,
+                exam=exam,
+                score=score,
+                total_marks=total_marks,
+                is_published=False
+            )
+            del request.session[session_key]
+            # Remove current_exam_id after submission
+            if 'current_exam_id' in request.session:
+                del request.session['current_exam_id']
+            messages.success(request, f"Exam '{exam.name}' submitted successfully. Your results will be available once approved by the teacher.")
+            return redirect('students:exam_result', result_id=new_result.id)
+
+        context = {
+            'exam': exam,
+            'questions': questions,
+            'time_left': time_left,
+            'end_time': end_dt.isoformat(),
+            'server_now': now.isoformat(),
+        }
+        return render(request, 'student/take_exam.html', context)
+    # Exam closed
+    else:
+        return render(request, 'student/closed.html', {'exam': exam, 'reason': 'ended'})
 
 @login_required(login_url='login')
 def exam_result_view(request, result_id):

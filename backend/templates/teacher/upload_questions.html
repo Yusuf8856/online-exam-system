@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'exams:exam_detail' exam.id %}">{{ exam.name }}</a></li>
+            <li class="breadcrumb-item active">Upload PDF</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-file-pdf"></i> Upload Questions from PDF</h4>
+        </div>
+        <div class="card-body">
+            <div id="upload-stage">
+                <p class="text-muted">Upload a PDF to automatically extract MCQs. Use OCR if your PDF contains scanned
+                    images instead of selectable text.</p>
+
+                <div id="drop-zone" class="border border-2 border-dashed rounded-3 p-5 text-center mb-3 bg-light"
+                    style="cursor: pointer; transition: 0.3s;">
+                    <i class="fas fa-file-upload fa-3x text-primary mb-3"></i>
+                    <h5>Drag & Drop PDF here</h5>
+                    <p class="text-muted mb-0">or click to browse files</p>
+                    <input type="file" id="pdfFile" class="d-none" accept=".pdf">
+                    <div id="file-info" class="mt-3 fw-bold text-success d-none"></div>
+                </div>
+
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" id="useOcr">
+                    <label class="form-check-label" for="useOcr">Use OCR Processing (Recommended for scanned
+                        documents)</label>
+                </div>
+
+                <button id="btnParse" class="btn btn-primary w-100 py-2">
+                    <i class="fas fa-magic me-2"></i>Extract Questions
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-stage" class="d-none my-5">
+                <div class="text-center mb-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <h5 class="mt-2" id="status-label">Uploading PDF...</h5>
+                </div>
+                <div class="progress" style="height: 25px;">
+                    <div id="upload-progress" class="progress-bar progress-bar-striped progress-bar-animated"
+                        role="progressbar" style="width: 0%;">0%</div>
+                </div>
+                <p class="text-center mt-2 text-muted small">Please do not refresh the page while we process your file.
+                </p>
+            </div>
+
+            <!-- Preview Table -->
+            <div id="preview-stage" class="d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                    <h5 class="mb-0">Extracted Questions (<span id="qCount">0</span>)</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="input-group input-group-sm" style="width: 180px;">
+                            <input type="number" id="bulkMarksInput" class="form-control" placeholder="Set marks..."
+                                min="1">
+                            <button id="btnBulkMarks" class="btn btn-outline-primary" type="button">Apply to
+                                All</button>
+                        </div>
+                        <button id="btnCancel" class="btn btn-outline-secondary btn-sm">Cancel</button>
+                        <button id="btnSave" class="btn btn-success">Save All to Exam</button>
+                    </div>
+                </div>
+                <div id="preview-list" class="list-group shadow-sm" style="max-height: 500px; overflow-y: auto;">
+                    <!-- Questions injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let extractedData = [];
+
+    const parseBtn = document.getElementById('btnParse');
+    const saveBtn = document.getElementById('btnSave');
+    const cancelBtn = document.getElementById('btnCancel');
+    const fileInput = document.getElementById('pdfFile');
+
+    const uploadStage = document.getElementById('upload-stage');
+    const loadingStage = document.getElementById('loading-stage');
+    const progressBar = document.getElementById('upload-progress');
+    const statusLabel = document.getElementById('status-label');
+    const previewStage = document.getElementById('preview-stage');
+    const previewList = document.getElementById('preview-list');
+
+    const dropZone = document.getElementById('drop-zone');
+    const fileInfo = document.getElementById('file-info');
+    const useOcrCheck = document.getElementById('useOcr');
+    const bulkMarksBtn = document.getElementById('btnBulkMarks');
+    const bulkMarksInput = document.getElementById('bulkMarksInput');
+
+    // Drag and Drop Logic
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files[0]) {
+            fileInfo.innerText = `Selected: ${fileInput.files[0].name}`;
+            fileInfo.classList.remove('d-none');
+        }
+    });
+
+    ['dragover', 'dragleave', 'drop'].forEach(evt => {
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (evt === 'dragover') dropZone.classList.add('bg-primary', 'bg-opacity-10', 'border-primary');
+            else dropZone.classList.remove('bg-primary', 'bg-opacity-10', 'border-primary');
+        });
+    });
+
+    dropZone.addEventListener('drop', e => {
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    parseBtn.addEventListener('click', async () => {
+        if (!fileInput.files[0]) return alert("Please select a PDF file first.");
+
+        const formData = new FormData();
+        formData.append('pdf_file', fileInput.files[0]);
+        formData.append('use_ocr', useOcrCheck.checked);
+
+        uploadStage.classList.add('d-none');
+        loadingStage.classList.remove('d-none');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', "");
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+
+        // Track Upload Progress
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+                const percent = Math.round((event.loaded / event.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressBar.innerText = percent + '%';
+
+                if (percent === 100) {
+                    statusLabel.innerText = "Extracting & Parsing Questions...";
+                    progressBar.classList.add('bg-info');
+                }
+            }
+        };
+
+        xhr.onload = () => {
+            const data = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) {
+                extractedData = data.questions;
+                document.getElementById('qCount').innerText = extractedData.length;
+                renderPreview();
+                loadingStage.classList.add('d-none');
+                previewStage.classList.remove('d-none');
+            } else {
+                alert(data.error || "Parsing failed.");
+                resetUpload();
+            }
+        };
+
+        xhr.onerror = () => {
+            alert("A network error occurred.");
+            resetUpload();
+        };
+
+        xhr.send(formData);
+    });
+
+    // Bulk Marks Logic
+    bulkMarksBtn.addEventListener('click', () => {
+        const value = parseInt(bulkMarksInput.value);
+        if (isNaN(value) || value < 1) {
+            return alert("Please enter a valid number for marks (minimum 1).");
+        }
+
+        extractedData.forEach(q => {
+            q.marks = value;
+        });
+        renderPreview();
+    });
+
+    function resetUpload() {
+        loadingStage.classList.add('d-none');
+        uploadStage.classList.remove('d-none');
+        progressBar.style.width = '0%';
+        progressBar.innerText = '0%';
+        statusLabel.innerText = "Uploading PDF...";
+    }
+
+    function renderPreview() {
+        previewList.innerHTML = extractedData.map((q, i) => `
+        <div class="list-group-item p-3 ${q.isEditing ? 'bg-light' : ''}">
+            <div class="d-flex justify-content-between align-items-start">
+                ${q.isEditing ? `
+                    <div class="w-100">
+                        <label class="form-label small fw-bold">Question Text</label>
+                        <textarea class="form-control form-control-sm mb-2" id="edit-q-${i}">${q.question}</textarea>
+                        
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="small fw-bold">Option A</label>
+                                <input type="text" class="form-control form-control-sm" id="edit-oa-${i}" value="${q.option_a}">
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Option B</label>
+                                <input type="text" class="form-control form-control-sm" id="edit-ob-${i}" value="${q.option_b}">
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Option C</label>
+                                <input type="text" class="form-control form-control-sm" id="edit-oc-${i}" value="${q.option_c}">
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Option D</label>
+                                <input type="text" class="form-control form-control-sm" id="edit-od-${i}" value="${q.option_d}">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="small fw-bold">Correct Answer</label>
+                                <select class="form-select form-select-sm" id="edit-ans-${i}">
+                                    <option value="A" ${q.correct_answer === 'A' ? 'selected' : ''}>A</option>
+                                    <option value="B" ${q.correct_answer === 'B' ? 'selected' : ''}>B</option>
+                                    <option value="C" ${q.correct_answer === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="D" ${q.correct_answer === 'D' ? 'selected' : ''}>D</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Marks</label>
+                                <input type="number" class="form-control form-control-sm" id="edit-m-${i}" value="${q.marks || 1}" min="1">
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="cancelEdit(${i})">Cancel</button>
+                            <button class="btn btn-sm btn-primary" onclick="saveEdit(${i})">Update</button>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="d-flex align-items-center">
+                        <h6 class="mb-1 text-primary me-2"><strong>Q${i + 1}:</strong> ${q.question}</h6>
+                        <span class="badge bg-secondary mb-1">${q.marks || 1} marks</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-link text-warning p-0 me-2" onclick="editQuestion(${i})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-link text-danger p-0" onclick="removeQuestion(${i})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `}
+            </div>
+            ${!q.isEditing ? `
+            <div class="ms-3 mt-2">
+                <div class="row g-2 small text-muted">
+                    <div class="col-6"><strong>A:</strong> ${q.option_a}</div>
+                    <div class="col-6"><strong>B:</strong> ${q.option_b}</div>
+                    <div class="col-6"><strong>C:</strong> ${q.option_c}</div>
+                    <div class="col-6"><strong>D:</strong> ${q.option_d}</div>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success mt-2">Correct: ${q.correct_answer}</span>
+            </div>
+            ` : ''}
+        </div>
+    `).join('');
+    }
+
+    window.editQuestion = (index) => {
+        extractedData[index].isEditing = true;
+        renderPreview();
+    };
+
+    window.cancelEdit = (index) => {
+        extractedData[index].isEditing = false;
+        renderPreview();
+    };
+
+    window.saveEdit = (index) => {
+        const question = document.getElementById(`edit-q-${index}`).value.trim();
+        const optA = document.getElementById(`edit-oa-${index}`).value.trim();
+        const optB = document.getElementById(`edit-ob-${index}`).value.trim();
+        const optC = document.getElementById(`edit-oc-${index}`).value.trim();
+        const optD = document.getElementById(`edit-od-${index}`).value.trim();
+        const ans = document.getElementById(`edit-ans-${index}`).value;
+        const marks = parseInt(document.getElementById(`edit-m-${index}`).value);
+
+        // 1. Check for empty fields
+        if (!question || !optA || !optB || !optC || !optD || !ans || isNaN(marks)) {
+            alert("All fields are required. Please ensure the question and all options are filled.");
+            return;
+        }
+
+        if (marks < 1) return alert("Marks must be at least 1.");
+
+        // 2. Update local state
+        extractedData[index].question = question;
+        extractedData[index].option_a = optA;
+        extractedData[index].option_b = optB;
+        extractedData[index].option_c = optC;
+        extractedData[index].option_d = optD;
+        extractedData[index].correct_answer = ans;
+        extractedData[index].marks = marks;
+
+        extractedData[index].isEditing = false;
+        renderPreview();
+    };
+
+    window.removeQuestion = (index) => {
+        extractedData.splice(index, 1);
+        document.getElementById('qCount').innerText = extractedData.length;
+        renderPreview();
+        if (extractedData.length === 0) cancelBtn.click();
+    };
+
+    saveBtn.addEventListener('click', async () => {
+        if (extractedData.length === 0) return alert("No questions to save.");
+        const response = await fetch("", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ questions: extractedData })
+        });
+        const data = await response.json();
+        if (data.status === 'success') window.location.href = data.redirect_url;
+        else alert(data.error || "Failed to save questions.");
+    });
+
+    cancelBtn.addEventListener('click', () => location.reload());
+</script>
+{% endblock %}

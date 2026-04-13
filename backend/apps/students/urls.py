@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'students'
@@ -11,5 +12,8 @@ urlpatterns = [
     path('exam/result/<int:result_id>/', views.exam_result_view, name='exam_result'),
     path('exam/report/<int:result_id>/', views.result_report_view, name='result_report'),
     path('exam/<int:exam_id>/guidelines/', views.exam_guidelines_view, name='exam_guidelines'),
+
+    # API endpoint for logging proctoring violations
+    path('api/log-violation/', views.log_violation_api, name='log_violation_api'),
 
 ]

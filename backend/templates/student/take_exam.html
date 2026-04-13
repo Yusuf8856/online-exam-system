@@ -1,8 +1,14 @@
 {% extends 'base.html' %} {% block title %}Taking Exam:
 {{ exam.name }}{% endblock %} {% block content %}
 
-<!-- Timer Display -->
-<div class="sticky-top bg-white border-bottom p-3 mb-4 shadow-sm">
+<!-- Webcam Required Notice -->
+<div id="webcam-required-message" class="alert alert-warning text-center mt-4" style="display:none;">
+  <strong>Webcam access is required to start the exam.</strong><br>
+  Please allow webcam access. The exam will begin once your camera is enabled.
+</div>
+
+<!-- Timer Display (hidden until webcam enabled) -->
+<div id="timer-section" class="sticky-top bg-white border-bottom p-3 mb-4 shadow-sm" style="display:none;">
   <div class="container d-flex justify-content-between align-items-center">
     <h5 class="mb-0">{{ exam.name }}</h5>
     <div id="timer-box" class="h4 mb-0 text-danger font-weight-bold">
@@ -17,74 +23,235 @@
       <h3 class="mb-0">{{ exam.name }}</h3>
     </div>
     <div class="card-body">
-      <form method="POST" id="exam-form">
-        {% csrf_token %} {% for question in questions %}
-        <div class="card mb-4">
-          <div class="card-header">
-            <strong>Question {{ forloop.counter }}</strong>
-            ({{ question.marks }} marks)
+      <form method="POST" id="exam-form" style="display:none;">
+        {% csrf_token %}
+        <div class="row">
+          <!-- Slide-out menu trigger -->
+          <div class="mb-3">
+            <button type="button" class="btn btn-outline-primary mb-2" id="openNavMenuBtn">
+              <i class="fas fa-bars"></i> Question Navigation
+            </button>
           </div>
-          <div class="card-body">
-            <p class="card-text">{{ question.text }}</p>
-            <div class="ms-3">
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o1"
-                  value="{{ question.option1 }}" />
-                <label class="form-check-label" for="q{{ question.id }}o1">{{ question.option1 }}</label>
-              </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o2"
-                  value="{{ question.option2 }}" />
-                <label class="form-check-label" for="q{{ question.id }}o2">{{ question.option2 }}</label>
-              </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o3"
-                  value="{{ question.option3 }}" />
-                <label class="form-check-label" for="q{{ question.id }}o3">{{ question.option3 }}</label>
-              </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o4"
-                  value="{{ question.option4 }}" />
-                <label class="form-check-label" for="q{{ question.id }}o4">{{ question.option4 }}</label>
-              </div>
+          <!-- Slide-out menu overlay and panel -->
+          <div id="navMenuOverlay"></div>
+          <div id="navMenu">
+            <button class="close-btn" id="closeNavMenuBtn">&times;</button>
+            <h5 class="mb-3">Question Panel</h5>
+            <div id="question-nav-panel" class="d-flex flex-wrap gap-2 mb-3">
+              {% for question in questions %}
+              <button type="button" class="btn btn-sm btn-outline-secondary q-nav-btn"
+                data-qidx="{{ forloop.counter0 }}" id="qnav{{ forloop.counter0 }}">
+                {{ forloop.counter }}
+              </button>
+              {% endfor %}
+            </div>
+            <div class="mb-2 small">
+              <span class="badge bg-success">Answered</span>
+              <span class="badge bg-danger">Not Answered</span>
+              <span class="badge bg-light text-dark border">Not Visited</span>
+              <span class="badge bg-purple" style="background: purple; color: #fff;">Marked for Review</span>
+            </div>
+            <div>
+              <div>Attempted: <span id="count-attempted">0</span></div>
+              <div>Not Attempted: <span id="count-not-attempted">0</span></div>
+              <div>Not Visited: <span id="count-not-visited">0</span></div>
+              <div>Marked for Review: <span id="count-marked">0</span></div>
             </div>
           </div>
+          <div class="col-md-12">
+            {% for question in questions %}
+            <div class="card mb-4 question-card" id="question-{{ forloop.counter0 }}" style="display: none;">
+              <div class="card-header">
+                <strong>Question {{ forloop.counter }}</strong> ({{ question.marks }} marks)
+              </div>
+              <div class="card-body">
+                <p class="card-text">{{ question.text }}</p>
+                <div class="ms-3">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input option-radio" type="radio" name="question_{{ question.id }}"
+                      id="q{{ question.id }}o1" value="{{ question.option1 }}" />
+                    <label class="form-check-label" for="q{{ question.id }}o1">{{ question.option1 }}</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input option-radio" type="radio" name="question_{{ question.id }}"
+                      id="q{{ question.id }}o2" value="{{ question.option2 }}" />
+                    <label class="form-check-label" for="q{{ question.id }}o2">{{ question.option2 }}</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input option-radio" type="radio" name="question_{{ question.id }}"
+                      id="q{{ question.id }}o3" value="{{ question.option3 }}" />
+                    <label class="form-check-label" for="q{{ question.id }}o3">{{ question.option3 }}</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input option-radio" type="radio" name="question_{{ question.id }}"
+                      id="q{{ question.id }}o4" value="{{ question.option4 }}" />
+                    <label class="form-check-label" for="q{{ question.id }}o4">{{ question.option4 }}</label>
+                  </div>
+                </div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn btn-primary btn-sm" onclick="saveAndNext()">Save & Next</button>
+                  <button type="button" class="btn btn-warning btn-sm" onclick="clearResponse()">Clear Response</button>
+                  <button type="button" class="btn btn-purple btn-sm" style="background: purple; color: #fff;"
+                    onclick="markForReviewAndNext()">Mark for Review & Next</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="previousQuestion()">Previous</button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-success btn-lg w-100 mt-3" id="submitExamBtn"
+              style="display:none;">Submit Exam</button>
+          </div>
         </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-success btn-lg w-100">
-          Submit Exam
-        </button>
       </form>
     </div>
   </div>
 </div>
 
 <script>
-  // Initialize time left from Django context
+  // Timer logic (unchanged, but only starts after webcam enabled)
   let timeLeft = {{ time_left }};
+  let timerInterval = null;
   const timerElement = document.getElementById('timer');
   const examForm = document.getElementById('exam-form');
-
+  const submitBtn = document.getElementById('submitExamBtn');
   function updateTimer() {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-
-    // Format: 00:00
-    timerElement.innerText =
-      `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
+    timerElement.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       alert("Time is up! Your exam will be submitted automatically.");
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+      submitBtn.disabled = false;
+      submitBtn.style.display = 'block';
       examForm.submit();
+    } else {
+      // Disable submit button until time is up
+      submitBtn.disabled = true;
+      submitBtn.style.display = 'block';
     }
     timeLeft--;
   }
+  function startExamUI() {
+    document.getElementById('webcam-required-message').style.display = 'none';
+    document.getElementById('timer-section').style.display = '';
+    examForm.style.display = '';
+    // Request fullscreen mode
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
+      document.documentElement.mozRequestFullScreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+      document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) { /* IE/Edge */
+      document.documentElement.msRequestFullscreen();
+    }
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+  }
+  // Prevent accidental exit
+  function beforeUnloadHandler(e) {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+  window.addEventListener('beforeunload', beforeUnloadHandler);
+  examForm.addEventListener('submit', function () {
+    window.removeEventListener('beforeunload', beforeUnloadHandler);
+  });
 
-  // Run update every second
-  const timerInterval = setInterval(updateTimer, 1000);
+  // Show webcam required message by default
+  document.getElementById('webcam-required-message').style.display = '';
+  const questions = document.querySelectorAll('.question-card');
+  const navBtns = document.querySelectorAll('.q-nav-btn');
+  let currentIdx = 0;
+  // Status: NOT_VISITED, NOT_ANSWERED, ANSWERED, MARKED_FOR_REVIEW, ANSWERED_MARKED
+  let statuses = Array(questions.length).fill('NOT_VISITED');
+  let answers = Array(questions.length).fill(null);
 
-  // Initial call to prevent 1s delay in display
-  updateTimer();
+  function showQuestion(idx) {
+    questions.forEach((q, i) => q.style.display = (i === idx ? 'block' : 'none'));
+    navBtns.forEach((btn, i) => btn.classList.toggle('active', i === idx));
+    if (statuses[idx] === 'NOT_VISITED') statuses[idx] = 'NOT_ANSWERED';
+    updatePanel();
+    currentIdx = idx;
+  }
+  function saveAndNext() {
+    saveAnswer(currentIdx);
+    if (currentIdx < questions.length - 1) showQuestion(currentIdx + 1);
+  }
+  function clearResponse() {
+    answers[currentIdx] = null;
+    statuses[currentIdx] = 'NOT_ANSWERED';
+    let radios = questions[currentIdx].querySelectorAll('.option-radio');
+    radios.forEach(r => r.checked = false);
+    updatePanel();
+  }
+  function markForReviewAndNext() {
+    saveAnswer(currentIdx, true);
+    if (currentIdx < questions.length - 1) showQuestion(currentIdx + 1);
+  }
+  function previousQuestion() {
+    if (currentIdx > 0) showQuestion(currentIdx - 1);
+  }
+  function saveAnswer(idx, markForReview = false) {
+    let radios = questions[idx].querySelectorAll('.option-radio');
+    let selected = Array.from(radios).find(r => r.checked);
+    if (selected) {
+      answers[idx] = selected.value;
+      statuses[idx] = markForReview ? 'ANSWERED_MARKED' : 'ANSWERED';
+    } else {
+      statuses[idx] = markForReview ? 'MARKED_FOR_REVIEW' : 'NOT_ANSWERED';
+    }
+    updatePanel();
+  }
+  function updatePanel() {
+    let attempted = statuses.filter(s => s === 'ANSWERED' || s === 'ANSWERED_MARKED').length;
+    let notAttempted = statuses.filter(s => s === 'NOT_ANSWERED').length;
+    let notVisited = statuses.filter(s => s === 'NOT_VISITED').length;
+    let marked = statuses.filter(s => s === 'MARKED_FOR_REVIEW' || s === 'ANSWERED_MARKED').length;
+    document.getElementById('count-attempted').innerText = attempted;
+    document.getElementById('count-not-attempted').innerText = notAttempted;
+    document.getElementById('count-not-visited').innerText = notVisited;
+    document.getElementById('count-marked').innerText = marked;
+    navBtns.forEach((btn, i) => {
+      btn.classList.remove('btn-success', 'btn-danger', 'btn-light', 'btn-purple', 'active');
+      if (statuses[i] === 'ANSWERED') btn.classList.add('btn-success');
+      else if (statuses[i] === 'NOT_ANSWERED') btn.classList.add('btn-danger');
+      else if (statuses[i] === 'NOT_VISITED') btn.classList.add('btn-light');
+      else if (statuses[i] === 'MARKED_FOR_REVIEW') btn.classList.add('btn-purple');
+      else if (statuses[i] === 'ANSWERED_MARKED') btn.classList.add('btn-purple');
+      if (i === currentIdx) btn.classList.add('active');
+    });
+  }
+  // Slide-out menu logic
+  const navMenu = document.getElementById('navMenu');
+  const navMenuOverlay = document.getElementById('navMenuOverlay');
+  document.getElementById('openNavMenuBtn').addEventListener('click', function () {
+    navMenu.classList.add('open');
+    navMenuOverlay.style.display = 'block';
+  });
+  document.getElementById('closeNavMenuBtn').addEventListener('click', function () {
+    navMenu.classList.remove('open');
+    navMenuOverlay.style.display = 'none';
+  });
+  navMenuOverlay.addEventListener('click', function () {
+    navMenu.classList.remove('open');
+    navMenuOverlay.style.display = 'none';
+  });
+  navBtns.forEach((btn, i) => btn.addEventListener('click', () => showQuestion(i)));
+  // Option select triggers status update
+  questions.forEach((q, idx) => {
+    let radios = q.querySelectorAll('.option-radio');
+    radios.forEach(r => r.addEventListener('change', () => {
+      answers[idx] = r.value;
+      statuses[idx] = 'ANSWERED';
+      updatePanel();
+    }));
+  });
+  // Show first question on load (but only after webcam enabled)
+  function showExamFirstQuestion() {
+    showQuestion(0);
+  }
 </script>
 {% endblock %}

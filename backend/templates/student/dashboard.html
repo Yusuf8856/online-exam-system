@@ -1,34 +1,15 @@
-{% extends 'base.html' %} {% block title %}Student Dashboard 
+{% extends 'base.html' %} {% block title %}Student Dashboard
 {% endblock %} {% block content %}
 <div class="row">
   <!-- Sidebar -->
   <div class="col-md-3 col-lg-2 mb-4">
     <div class="list-group shadow-sm">
-      <a
-        href="{% url 'students:dashboard' %}"
-        class="list-group-item list-group-item-action active bg-primary border-primary"
-        >Dashboard</a
-      >
-      <a
-        href="{% url 'students:available_exams' %}"
-        class="list-group-item list-group-item-action"
-        >Available Exams</a
-      >
-      <a
-        href="{% url 'students:my_results' %}"
-        class="list-group-item list-group-item-action"
-        >My Results</a
-      >
-      <a
-        href="{% url 'my_profile' %}"
-        class="list-group-item list-group-item-action"
-        >My Profile</a
-      >
-      <a
-        href="{% url 'logout' %}"
-        class="list-group-item list-group-item-action text-danger"
-        >Logout</a
-      >
+      <a href="{% url 'students:dashboard' %}"
+        class="list-group-item list-group-item-action active bg-primary border-primary">Dashboard</a>
+      <a href="{% url 'students:available_exams' %}" class="list-group-item list-group-item-action">Available Exams</a>
+      <a href="{% url 'students:my_results' %}" class="list-group-item list-group-item-action">My Results</a>
+      <a href="{% url 'my_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
+      <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
     </div>
   </div>
 
@@ -76,6 +57,7 @@
             <th>Instructor</th>
             <th>Date</th>
             <th>Duration</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -87,10 +69,13 @@
             </td>
             <td>{{ exam.date }}</td>
             <td>{{ exam.duration }} mins</td>
+            <td>
+              <span class="text-muted">-</span>
+            </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="text-center">No upcoming exams.</td>
+            <td colspan="5" class="text-center">No upcoming exams.</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -31,6 +31,9 @@
       <a href="{% url 'exams:add_question' exam.id %}" class="btn btn-success"
         >Add Question</a
       >
+      <a href="{% url 'exams:upload_questions_pdf' exam.id %}" class="btn btn-outline-primary"
+        ><i class="fas fa-file-upload me-1"></i> Upload PDF</a
+      >
       <a href="{% url 'exams:edit_exam' exam.id %}" class="btn btn-warning"
         >Edit Exam</a
       >

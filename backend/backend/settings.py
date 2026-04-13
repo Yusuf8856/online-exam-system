@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -147,3 +147,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Refresh session on activity
 SESSION_SAVE_EVERY_REQUEST = True  
+
+POPPLER_PATH = r"C:\poppler-25.12.0\Library\bin"
+TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"

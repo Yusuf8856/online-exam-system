@@ -97,6 +97,15 @@ Examination System{% endblock %} {% block content %}
               <a href="{% url 'exams:exam_detail' exam.id %}" class="btn btn-sm btn-outline-primary">
                 View Details
               </a>
+              <a href="{% url 'exams:upload_questions_pdf' exam.id %}" class="btn btn-sm btn-outline-secondary" title="Upload PDF">
+                <i class="fas fa-upload"></i>
+              </a>
+              <form method="post" action="{% url 'exams:delete_exam' exam.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this exam? This action cannot be undone.');">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
             </td>
           </tr>
           {% empty %}
