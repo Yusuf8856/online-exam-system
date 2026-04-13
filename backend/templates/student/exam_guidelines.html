@@ -26,6 +26,14 @@
                             <span>{{ exam.date|date:"F d, Y" }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Start Time:</strong>
+                            <span>{{ exam.start_time|time:"h:i A" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>End Time:</strong>
+                            <span>{{ end_time|time:"h:i A" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
                             <strong>Duration:</strong>
                             <span>{{ exam.duration }} minutes</span>
                         </li>
@@ -64,7 +72,7 @@
                             <i class="fas fa-arrow-left me-2"></i>Back to Exams
                         </a>
                         <a href="{% url 'students:take_exam' exam.id %}" class="btn btn-success btn-lg"
-                            id="startExamBtn" disabled>
+                            id="startExamBtn" style="display: none;">
                             <i class="fas fa-play-circle me-2"></i>Proceed to Exam
                         </a>
                     </div>
@@ -76,8 +84,12 @@
 
 <script>
     document.getElementById('agreeTerms').addEventListener('change', function () {
-        document.getElementById('startExamBtn').disabled = !this.checked;
-        document.getElementById('startExamBtn').href = "{% url 'students:take_exam' exam.id %}";
+        var startBtn = document.getElementById('startExamBtn');
+        if (this.checked) {
+            startBtn.style.display = 'inline-block';
+        } else {
+            startBtn.style.display = 'none';
+        }
     });
 </script>
 {% endblock %}

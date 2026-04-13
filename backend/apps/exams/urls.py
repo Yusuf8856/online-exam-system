@@ -14,6 +14,8 @@ urlpatterns = [
     path('question/<int:question_id>/delete/', views.delete_question, name='delete_question'),
     path('<int:result_id>/publish/', views.publish_result, name='publish_result'),
     path('<int:exam_id>/edit/', views.edit_exam, name='edit_exam'),
+    path('<int:exam_id>/upload-pdf/', views.upload_questions_pdf, name='upload_questions_pdf'),
 
-
+    # Exam delete URL
+    path('<int:exam_id>/delete/', views.delete_exam, name='delete_exam'),
 ]

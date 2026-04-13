@@ -1,3 +1,65 @@
+/* CUET-style question nav colors */
+.btn-success.q-nav-btn {
+  background-color: #28a745 !important;
+  color: #fff !important;
+  border-color: #28a745 !important;
+}
+.btn-danger.q-nav-btn {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+  border-color: #dc3545 !important;
+}
+.btn-light.q-nav-btn {
+  background-color: #fff !important;
+  color: #212529 !important;
+  border-color: #ced4da !important;
+}
+.btn-purple.q-nav-btn {
+  background: purple !important;
+  color: #fff !important;
+  border-color: purple !important;
+}
+.q-nav-btn.active {
+  box-shadow: 0 0 0 2px #0d6efd;
+  border-width: 2px;
+}
+
+/* Slide-out menu for question nav */
+#navMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1040;
+  display: none;
+}
+#navMenu {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 320px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+  transition: left 0.3s;
+  padding: 1.5rem 1rem 1rem 1rem;
+  overflow-y: auto;
+}
+#navMenu.open {
+  left: 0;
+}
+#navMenu .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  border: none;
+  background: none;
+  color: #333;
+}
 body {
-background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
