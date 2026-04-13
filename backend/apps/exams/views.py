@@ -34,6 +34,31 @@ def create_exam(request):
     return render(request, 'teacher/create_exam.html', context)
 
 @login_required(login_url='login')
+def edit_exam(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    
+    # Authorization: Only the creator or an admin can edit
+    if exam.created_by != request.user and not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('teacher_dashboard')
+
+    if request.method == 'POST':
+        form = ExamForm(request.POST, instance=exam)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Exam '{exam.name}' updated successfully!")
+            return redirect('exams:exam_detail', exam_id=exam.id)
+    else:
+        form = ExamForm(instance=exam)
+
+    context = {
+        'form': form,
+        'exam': exam,
+        'edit_mode': True
+    }
+    return render(request, 'teacher/create_exam.html', context)
+
+@login_required(login_url='login')
 def exam_detail(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     

@@ -1,71 +1,51 @@
-{% extends 'base.html' %} {% block title %}Taking Exam: 
+{% extends 'base.html' %} {% block title %}Taking Exam:
 {{ exam.name }}{% endblock %} {% block content %}
+
+<!-- Timer Display -->
+<div class="sticky-top bg-white border-bottom p-3 mb-4 shadow-sm">
+  <div class="container d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">{{ exam.name }}</h5>
+    <div id="timer-box" class="h4 mb-0 text-danger font-weight-bold">
+      Time Left: <span id="timer">00:00</span>
+    </div>
+  </div>
+</div>
+
 <div class="container mt-4">
   <div class="card shadow-lg">
-    <div
-      class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
-    >
+    <div class="card-header bg-primary text-white">
       <h3 class="mb-0">{{ exam.name }}</h3>
-      <div id="timer" class="fs-4 fw-bold">--:--</div>
     </div>
     <div class="card-body">
-      <form method="post" id="exam-form">
+      <form method="POST" id="exam-form">
         {% csrf_token %} {% for question in questions %}
         <div class="card mb-4">
           <div class="card-header">
-            <strong>Question {{ forloop.counter }}</strong> ({{ question.marks
-            }} marks)
+            <strong>Question {{ forloop.counter }}</strong>
+            ({{ question.marks }} marks)
           </div>
           <div class="card-body">
             <p class="card-text">{{ question.text }}</p>
             <div class="ms-3">
               <div class="form-check mb-2">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="question_{{ question.id }}"
-                  id="q{{ question.id }}o1"
-                  value="{{ question.option1 }}"
-                />
-                <label class="form-check-label" for="q{{ question.id }}o1"
-                  >{{ question.option1 }}</label
-                >
+                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o1"
+                  value="{{ question.option1 }}" />
+                <label class="form-check-label" for="q{{ question.id }}o1">{{ question.option1 }}</label>
               </div>
               <div class="form-check mb-2">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="question_{{ question.id }}"
-                  id="q{{ question.id }}o2"
-                  value="{{ question.option2 }}"
-                />
-                <label class="form-check-label" for="q{{ question.id }}o2"
-                  >{{ question.option2 }}</label
-                >
+                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o2"
+                  value="{{ question.option2 }}" />
+                <label class="form-check-label" for="q{{ question.id }}o2">{{ question.option2 }}</label>
               </div>
               <div class="form-check mb-2">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="question_{{ question.id }}"
-                  id="q{{ question.id }}o3"
-                  value="{{ question.option3 }}"
-                />
-                <label class="form-check-label" for="q{{ question.id }}o3"
-                  >{{ question.option3 }}</label
-                >
+                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o3"
+                  value="{{ question.option3 }}" />
+                <label class="form-check-label" for="q{{ question.id }}o3">{{ question.option3 }}</label>
               </div>
               <div class="form-check mb-2">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="question_{{ question.id }}"
-                  id="q{{ question.id }}o4"
-                  value="{{ question.option4 }}"
-                />
-                <label class="form-check-label" for="q{{ question.id }}o4"
-                  >{{ question.option4 }}</label
-                >
+                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}o4"
+                  value="{{ question.option4 }}" />
+                <label class="form-check-label" for="q{{ question.id }}o4">{{ question.option4 }}</label>
               </div>
             </div>
           </div>
@@ -80,22 +60,31 @@
 </div>
 
 <script>
-  const duration = {{ exam.duration }} * 60;
-  const timerDisplay = document.getElementById('timer');
-  let timer = duration, minutes, seconds;
+  // Initialize time left from Django context
+  let timeLeft = {{ time_left }};
+  const timerElement = document.getElementById('timer');
+  const examForm = document.getElementById('exam-form');
 
-  setInterval(function () {
-      minutes = parseInt(timer / 60, 10);
-      seconds = parseInt(timer % 60, 10);
+  function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
 
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
+    // Format: 00:00
+    timerElement.innerText =
+      `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-      timerDisplay.textContent = minutes + ":" + seconds;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Time is up! Your exam will be submitted automatically.");
+      examForm.submit();
+    }
+    timeLeft--;
+  }
 
-      if (--timer < 0) {
-          document.getElementById('exam-form').submit();
-      }
-  }, 1000);
+  // Run update every second
+  const timerInterval = setInterval(updateTimer, 1000);
+
+  // Initial call to prevent 1s delay in display
+  updateTimer();
 </script>
 {% endblock %}

@@ -27,9 +27,17 @@ class SignUpForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
         # Add 'form-control' class to all fields for Bootstrap styling
+        teacher_only = ['teacher_id', 'qualification', 'trained_at']
+        student_only = ['student_reg_number', 'gender', 'dob', 'address']
+
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
             field.widget.attrs['placeholder'] = field.label
+            
+            if field_name in teacher_only:
+                field.widget.attrs['data-role'] = 'teacher'
+            elif field_name in student_only:
+                field.widget.attrs['data-role'] = 'student'
 
     def clean(self):
         cleaned_data = super().clean()
