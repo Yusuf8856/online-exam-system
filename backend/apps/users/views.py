@@ -17,6 +17,15 @@ def home(request):
 
 def login_view(request):
     if request.method == 'POST':
+        
+         # 🔹 CAPTCHA validation
+        user_input = request.POST.get('captchaInput')
+        generated = request.POST.get('generatedCaptcha')
+
+        if user_input != generated:
+            messages.error(request, 'Invalid CAPTCHA')
+            return redirect('login')
+        
         username = request.POST.get('username')
         password = request.POST.get('password')
         selected_role = request.POST.get('role')
