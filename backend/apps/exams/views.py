@@ -15,6 +15,7 @@ from apps.questions.models import Question
 from apps.results.models import Result
 from .forms import ExamForm
 from apps.questions.forms import QuestionForm
+from django.core.mail import send_mail
 
 @login_required(login_url='login')
 def create_exam(request):
@@ -170,6 +171,36 @@ def publish_result(request, result_id):
     
     result.is_published = not result.is_published
     result.save()
+        # ✅ SEND EMAIL ONLY WHEN PUBLISHED
+    if result.is_published:
+        student = result.student
+        user_email = student.email
+
+        percentage = (result.score / result.total_marks) * 100 if result.total_marks > 0 else 0
+
+        if user_email:
+            send_mail(
+                'Your Exam Result is Published',
+                f"""Dear {student.first_name or student.username},
+
+                    Your result for the exam "{result.exam.name}" has been published.
+
+                    Marks Obtained: {result.score}
+                    Total Marks: {result.total_marks}
+                    Percentage: {percentage:.2f}%
+
+                    You can now log in and view your detailed result.
+
+                    Best Regards,  
+                    Online Examination System
+                    """,
+                                    'samee89mohammed@gmail.com',
+                                    [user_email],
+                                    fail_silently=False,
+            )
+        else:
+            print("WARNING: No email for student")
+
     return redirect('exams:exam_results', exam_id=result.exam.id)
 
 @login_required(login_url='login')

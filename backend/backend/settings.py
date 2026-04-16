@@ -150,3 +150,11 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 POPPLER_PATH = r"C:\poppler-25.12.0\Library\bin"
 TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'samee89mohammed@gmail.com'
+EMAIL_HOST_PASSWORD = 'qubjblsaxmuoxbbl'
