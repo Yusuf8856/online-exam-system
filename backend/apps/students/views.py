@@ -193,6 +193,27 @@ def take_exam_view(request, exam_id):
                 total_marks=total_marks,
                 is_published=False
             )
+            print("USER EMAIL:", request.user.email)
+            # ✅ SEND EMAIL HERE
+            from django.core.mail import send_mail
+            send_mail(
+                'Exam Submitted Successfully',
+                f"""Dear {request.user.first_name},
+            You have successfully submitted the exam: {exam.name}.
+
+            Your responses have been recorded successfully.
+
+            The exam will now be evaluated, and your result will be published once the teacher reviews and approves it.
+
+            You will be notified once your result is available.
+
+            Best Regards,  
+            Online Examination System
+            """,
+                'samee89mohammed@gmail.com',
+                [request.user.email],
+                fail_silently=False,
+            )
             del request.session[session_key]
             # Remove current_exam_id after submission
             if 'current_exam_id' in request.session:

@@ -10,6 +10,8 @@ from apps.exams.models import Exam
 from apps.questions.models import Question
 from apps.results.models import Result
 from datetime import date
+from django.core.mail import send_mail
+
 
 # Create your views here.
 def home(request):
@@ -17,6 +19,15 @@ def home(request):
 
 def login_view(request):
     if request.method == 'POST':
+        
+         # 🔹 CAPTCHA validation
+        user_input = request.POST.get('captchaInput')
+        generated = request.POST.get('generatedCaptcha')
+
+        if user_input != generated:
+            messages.error(request, 'Invalid CAPTCHA')
+            return redirect('login')
+        
         username = request.POST.get('username')
         password = request.POST.get('password')
         selected_role = request.POST.get('role')
@@ -56,7 +67,25 @@ def register_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            user=form.save()
+             # ✅ Send Welcome Email
+            send_mail(
+                'Welcome to Online Examination System',
+                f"""Dear {user.first_name},
+
+                Welcome to Online Examination System!
+
+                Your account has been successfully created as {user.profile.role}.
+
+                You can now login and start using the system.
+
+                Best Regards,
+                Exam Team
+                """,
+                'samee89mohammed@gmail.com',   # sender
+                [user.email],             # receiver
+                    fail_silently=False,
+            )
             username = form.cleaned_data.get('username')
             messages.success(request, f'Account created for {username}! You can now log in.')
             return redirect('login')

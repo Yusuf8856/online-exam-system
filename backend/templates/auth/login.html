@@ -51,6 +51,27 @@
                   </select>
                   <label for="floatingRole">Role</label>
                 </div>
+                <!-- CAPTCHA Section -->
+                <div class="mb-3">
+                    <!-- Captcha row -->
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <!-- Generated captcha -->
+                        <span id="captcha" class="form-control text-center fw-bold" style="max-width:150px;"></span>
+                        <!-- Refresh button -->
+                        <button type="button" class="btn btn-secondary" onclick="generateCaptcha()">↻</button>
+                    </div>
+                    <!-- Input + hidden field -->
+                    <input type="hidden" id="generatedCaptcha" name="generatedCaptcha">
+                    <input
+                        type="text"
+                        name="captchaInput"
+                        id="captchaInput"
+                        class="form-control"
+                        placeholder="Enter CAPTCHA"
+                        required
+                    >
+
+                </div>
                 <div class="d-grid">
                   <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-sign-in-alt me-2"></i>Login
@@ -71,4 +92,19 @@
     </div>
   </div>
 </div>
+<script>
+  function generateCaptcha(){
+    let chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let captcha = "";
+    for(let i=0;i<5;i++){
+      captcha += chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    document.getElementById("captcha").innerText = captcha;
+    /* Store in hidden field */
+    document.getElementById("generatedCaptcha").value = captcha;
+  }
+  window.onload = function(){
+    generateCaptcha();
+    }
+  </script>
 {% endblock %}
