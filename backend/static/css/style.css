@@ -63,3 +63,32 @@
 body {
   background-color: #f8f9fa;
 }
+
+/* About & Contact Section Customization */
+#about {
+  background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+  border-bottom: 2px solid #2563eb22;
+}
+#about h2 {
+  color: #2563eb;
+}
+#about ul li {
+  font-size: 1.1rem;
+}
+#contact .card {
+  border-radius: 1.5rem;
+  border: none;
+}
+#contact .form-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 0.2rem #2563eb22;
+}
+#contact .btn-primary {
+  background: linear-gradient(90deg, #2563eb 0%, #1e293b 100%);
+  border: none;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+  transition: background 0.2s;
+}
+#contact .btn-primary:hover {
+  background: linear-gradient(90deg, #1e293b 0%, #2563eb 100%);
+}

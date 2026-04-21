@@ -1,98 +1,478 @@
 {% extends 'base.html' %} {% block title %}Welcome | Online Examination System
-{% endblock %} {% block content %}
-<div class="row align-items-center py-5 mb-5">
-  <div class="col-lg-6">
-    <h1 class="display-4 fw-bold text-dark mb-3">
-      Master Your Exams with Confidence
-    </h1>
-    <p class="lead text-muted mb-4">
-      A secure and easy-to-use platform for teachers to create assessments and
-      for students to excel in their studies. Experience real-time results and
-      analytics.
-    </p>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-      {% if user.is_authenticated %}
-      <!-- Optional: Redirect based on role in logic, or show generic dashboard link -->
-      <a
-        href="{% url 'login' %}"
-        class="btn btn-primary btn-lg px-4 me-md-2 rounded-pill shadow-sm"
-        >Go to Dashboard</a
-      >
-      {% else %}
-      <a
-        href="{% url 'login' %}"
-        class="btn btn-primary btn-lg px-4 me-md-2 rounded-pill shadow-sm"
-        >Login</a
-      >
-      <a
-        href="/register"
-        class="btn btn-outline-secondary btn-lg px-4 rounded-pill"
-        >Register Now</a
-      >
-      {% endif %}
-    </div>
-  </div>
-  <div class="col-lg-6 text-center mt-4 mt-lg-0">
-    <img
-      src="https://img.freepik.com/free-vector/online-test-concept-illustration_114360-5474.jpg"
-      alt="Online Exam"
-      class="img-fluid rounded-3 shadow-lg"
-      style="max-height: 400px"
-    />
-  </div>
-</div>
+{% endblock %}
+{% block content %}
 
-<div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
-  <div class="col">
-    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-      <div class="card-body text-center p-4">
-        <div
-          class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center"
-          style="width: 60px; height: 60px"
-        >
-          <i class="fas fa-laptop-code fa-lg"></i>
+<!-- 1. Hero Section -->
+<section class="wow-hero position-relative overflow-hidden d-flex align-items-center" style="min-height: 520px;">
+  <div class="container position-relative z-2">
+    <div class="row align-items-center">
+      <div class="col-lg-6 text-white">
+        <h1 class="display-2 fw-bold mb-3 wow-fade">Your Gateway to Seamless Online Exams</h1>
+        <p class="lead mb-4 wow-fade" style="font-size:1.4rem;">Conduct, take, and analyze exams with ease and
+          confidence on a secure, modern platform designed for students and educators.</p>
+        <div class="d-flex gap-3 mb-4">
+          {% if user.is_authenticated %}
+          <a href="{% url 'login' %}" class="btn btn-warning btn-lg px-5 py-3 rounded-pill shadow wow-cta">Go to
+            Dashboard</a>
+          {% else %}
+          <a href="{% url 'login' %}" class="btn btn-warning btn-lg px-5 py-3 rounded-pill shadow wow-cta">Login</a>
+          <a href="{% url 'register' %}"
+            class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill border-2 wow-cta">Register Now</a>
+          {% endif %}
         </div>
-        <h3 class="fs-4 fw-bold">Easy Management</h3>
-        <p class="text-muted">
-          Teachers can easily create, schedule, and manage exams with our
-          intuitive interface.
-        </p>
+        <div class="d-flex align-items-center gap-4 wow-fade">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-users fa-2x me-2 animate-bounce"></i>
+            <span class="fw-bold">1000+ Students</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <i class="fas fa-chalkboard-teacher fa-2x me-2 animate-bounce"></i>
+            <span class="fw-bold">100+ Teachers</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center mt-4 mt-lg-0">
+        <img src="https://img.freepik.com/free-vector/online-exam-concept-illustration_114360-4763.jpg"
+          alt="Online Exam with Student" class="img-fluid rounded-4 shadow-lg wow-float"
+          style="max-height: 400px; border: 6px solid #fff;" />
       </div>
     </div>
   </div>
-  <div class="col">
-    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-      <div class="card-body text-center p-4">
-        <div
-          class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center"
-          style="width: 60px; height: 60px"
-        >
-          <i class="fas fa-shield-alt fa-lg"></i>
+  <div class="wow-bg position-absolute top-0 start-0 w-100 h-100"></div>
+</section>
+
+<!-- 2. Features Section -->
+<section class="container py-5">
+  <div class="row g-4 row-cols-1 row-cols-md-3">
+    <div class="col">
+      <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+        <div class="card-body text-center p-4">
+          <div
+            class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center animate-spin"
+            style="width: 60px; height: 60px">
+            <i class="fas fa-laptop-code fa-lg"></i>
+          </div>
+          <h3 class="fs-4 fw-bold">Easy Management</h3>
+          <p class="text-muted">Teachers can easily create, schedule, and manage exams with our intuitive interface.</p>
         </div>
-        <h3 class="fs-4 fw-bold">Secure Testing</h3>
-        <p class="text-muted">
-          Advanced security measures ensure exam integrity and prevent
-          unauthorized access.
-        </p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+        <div class="card-body text-center p-4">
+          <div
+            class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center animate-bounce"
+            style="width: 60px; height: 60px">
+            <i class="fas fa-shield-alt fa-lg"></i>
+          </div>
+          <h3 class="fs-4 fw-bold">Secure Testing</h3>
+          <p class="text-muted">Advanced security measures ensure exam integrity and prevent unauthorized access.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+        <div class="card-body text-center p-4">
+          <div
+            class="feature-icon bg-warning bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center animate-pulse"
+            style="width: 60px; height: 60px">
+            <i class="fas fa-chart-line fa-lg"></i>
+          </div>
+          <h3 class="fs-4 fw-bold">Instant Results</h3>
+          <p class="text-muted">Students receive immediate feedback and detailed performance analytics after exams.</p>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col">
-    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-      <div class="card-body text-center p-4">
-        <div
-          class="feature-icon bg-warning bg-gradient text-white rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center"
-          style="width: 60px; height: 60px"
-        >
-          <i class="fas fa-chart-line fa-lg"></i>
+</section>
+
+<!-- 3. About Us Section -->
+<section id="about" class="py-5 bg-gradient" style="background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <img src="https://img.freepik.com/free-vector/online-exam-concept-illustration_114360-4763.jpg"
+          alt="About Us - Online Exam Student"
+          class="img-fluid rounded-4 shadow-lg border border-3 border-primary-subtle" style="max-height: 340px;" />
+      </div>
+      <div class="col-lg-6">
+        <h2 class="fw-bold mb-3 text-primary">About Us</h2>
+        <p class="lead text-dark mb-3">We are dedicated to revolutionizing online assessments for students and
+          educators. Our platform offers a seamless, secure, and engaging experience for conducting, taking, and
+          analyzing exams.</p>
+        <ul class="list-unstyled mb-3">
+          <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Trusted by 1000+ students and 100+
+            teachers</li>
+          <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Advanced security and proctoring
+            features</li>
+          <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Instant results and analytics</li>
+          <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 24/7 support for all users</li>
+        </ul>
+        <p class="text-muted">Our mission is to empower learners and educators with technology that makes assessments
+          fair, accessible, and insightful.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. FAQ Section -->
+<section class="container py-5">
+  <h2 class="text-center fw-bold mb-4">Frequently Asked Questions</h2>
+  <div class="accordion mx-auto" id="faqAccordion" style="max-width:700px;">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="faq1-heading">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1"
+          aria-expanded="true" aria-controls="faq1">
+          How do I register as a student or teacher?
+        </button>
+      </h2>
+      <div id="faq1" class="accordion-collapse collapse show" aria-labelledby="faq1-heading"
+        data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Click the "Register Now" button on the homepage and fill in your details. Choose your role as student or
+          teacher during registration.
         </div>
-        <h3 class="fs-4 fw-bold">Instant Results</h3>
-        <p class="text-muted">
-          Students receive immediate feedback and detailed performance analytics
-          after exams.
-        </p>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="faq2-heading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2"
+          aria-expanded="false" aria-controls="faq2">
+          How are exams conducted securely?
+        </button>
+      </h2>
+      <div id="faq2" class="accordion-collapse collapse" aria-labelledby="faq2-heading" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Our platform uses advanced security features to prevent cheating and ensure exam integrity, including time
+          limits, question randomization, and monitoring tools.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="faq3-heading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3"
+          aria-expanded="false" aria-controls="faq3">
+          How do I view my results?
+        </button>
+      </h2>
+      <div id="faq3" class="accordion-collapse collapse" aria-labelledby="faq3-heading" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          After completing an exam, results and analytics are available instantly on your dashboard under "My Results".
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="faq4-heading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4"
+          aria-expanded="false" aria-controls="faq4">
+          Who can I contact for support?
+        </button>
+      </h2>
+      <div id="faq4" class="accordion-collapse collapse" aria-labelledby="faq4-heading" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Click the chat/message button at the bottom right or email us at <b>support@examplatform.com</b> for help.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Testimonial Carousel -->
+<section class="bg-light py-5">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5">What Our Users Say</h2>
+    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <p class="mb-3">"This platform made online exams so easy and stress-free! Highly recommended for all
+                    teachers and students."</p>
+                  <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="rounded-circle mb-2"
+                    width="56" height="56">
+                  <div class="fw-bold">Amit Sharma</div>
+                  <div class="text-muted small">Math Teacher</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <p class="mb-3">"I love the instant results and analytics. It helps me track my progress after every
+                    exam!"</p>
+                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="rounded-circle mb-2"
+                    width="56" height="56">
+                  <div class="fw-bold">Priya Verma</div>
+                  <div class="text-muted small">Student</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <p class="mb-3">"The best online exam experience I've ever had. The interface is beautiful and easy to
+                    use!"</p>
+                  <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="User" class="rounded-circle mb-2"
+                    width="56" height="56">
+                  <div class="fw-bold">Rahul Mehra</div>
+                  <div class="text-muted small">Engineering Student</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Contact Us Section -->
+<section id="contact" class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-4">
+          <div class="card-body p-5">
+            <h2 class="fw-bold mb-4 text-primary text-center">Contact Us</h2>
+            <div class="text-center mb-4">
+              <span class="d-inline-block bg-primary bg-gradient rounded-circle p-3 shadow" style="font-size:2.5rem;">
+                <i class="fas fa-envelope-open-text text-white"></i>
+              </span>
+            </div>
+            <form method="post" action="mailto:support@examplatform.com" enctype="text/plain">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label for="name" class="form-label">Your Name</label>
+                  <input type="text" class="form-control form-control-lg" id="name" name="name" required />
+                </div>
+                <div class="col-md-6">
+                  <label for="email" class="form-label">Email Address</label>
+                  <input type="email" class="form-control form-control-lg" id="email" name="email" required />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <input type="text" class="form-control form-control-lg" id="subject" name="subject" required />
+              </div>
+              <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea class="form-control form-control-lg" id="message" name="message" rows="4" required></textarea>
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill">Send Message <i
+                    class="fas fa-paper-plane ms-2"></i></button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Floating Chat Button and FAQ Modal -->
+<button type="button" class="wow-chat-btn btn btn-primary rounded-circle shadow-lg position-fixed"
+  style="bottom: 32px; right: 32px; width: 64px; height: 64px; z-index: 1050; display: flex; align-items: center; justify-content: center; font-size: 2rem; animation: pulse 2s infinite;"
+  data-bs-toggle="modal" data-bs-target="#faqModal">
+  <i class="fas fa-comments"></i>
+</button>
+
+<div class="modal fade" id="faqModal" tabindex="-1" aria-labelledby="faqModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="faqModalLabel"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="accordion" id="faqModalAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="modal-faq1-heading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#modal-faq1"
+                aria-expanded="true" aria-controls="modal-faq1">
+                How do I register as a student or teacher?
+              </button>
+            </h2>
+            <div id="modal-faq1" class="accordion-collapse collapse show" aria-labelledby="modal-faq1-heading"
+              data-bs-parent="#faqModalAccordion">
+              <div class="accordion-body">
+                Click the "Register Now" button on the homepage and fill in your details. Choose your role as student or
+                teacher during registration.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="modal-faq2-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#modal-faq2" aria-expanded="false" aria-controls="modal-faq2">
+                How are exams conducted securely?
+              </button>
+            </h2>
+            <div id="modal-faq2" class="accordion-collapse collapse" aria-labelledby="modal-faq2-heading"
+              data-bs-parent="#faqModalAccordion">
+              <div class="accordion-body">
+                Our platform uses advanced security features to prevent cheating and ensure exam integrity, including
+                time limits, question randomization, and monitoring tools.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="modal-faq3-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#modal-faq3" aria-expanded="false" aria-controls="modal-faq3">
+                How do I view my results?
+              </button>
+            </h2>
+            <div id="modal-faq3" class="accordion-collapse collapse" aria-labelledby="modal-faq3-heading"
+              data-bs-parent="#faqModalAccordion">
+              <div class="accordion-body">
+                After completing an exam, results and analytics are available instantly on your dashboard under "My
+                Results".
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="modal-faq4-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#modal-faq4" aria-expanded="false" aria-controls="modal-faq4">
+                Who can I contact for support?
+              </button>
+            </h2>
+            <div id="modal-faq4" class="accordion-collapse collapse" aria-labelledby="modal-faq4-heading"
+              data-bs-parent="#faqModalAccordion">
+              <div class="accordion-body">
+                Click the chat/message button at the bottom right or email us at <b>support@examplatform.com</b> for
+                help.
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<style>
+  .wow-bg {
+    background: linear-gradient(120deg, #2563eb 0%, #1e293b 100%);
+    animation: gradientMove 8s ease-in-out infinite alternate;
+    z-index: 1;
+    opacity: 1;
+  }
+
+  .wow-hero {
+    background: transparent;
+  }
+
+  .wow-fade {
+    animation: fadeInUp 1.2s both;
+  }
+
+  .wow-float {
+    animation: floatY 3s ease-in-out infinite alternate;
+  }
+
+  .wow-cta {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .wow-cta:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 32px rgba(37, 99, 235, 0.25);
+  }
+
+  .animate-bounce {
+    animation: bounce 2s infinite;
+  }
+
+  .animate-spin {
+    animation: spin 2.5s linear infinite;
+  }
+
+  .animate-pulse {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes gradientMove {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes floatY {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(-18px);
+    }
+  }
+
+  @keyframes bounce {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+    }
+
+    70% {
+      box-shadow: 0 0 0 16px rgba(37, 99, 235, 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+  }
+</style>
 {% endblock %}
