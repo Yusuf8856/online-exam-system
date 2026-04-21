@@ -3,43 +3,53 @@
 <div class="row">
   <!-- Sidebar -->
   <div class="col-md-3 col-lg-2 mb-4">
-    <div class="list-group shadow-sm">
+    <div class="list-group shadow-sm rounded-4">
       <a href="{% url 'students:dashboard' %}"
-        class="list-group-item list-group-item-action active bg-primary border-primary">Dashboard</a>
-      <a href="{% url 'students:available_exams' %}" class="list-group-item list-group-item-action">Available Exams</a>
-      <a href="{% url 'students:my_results' %}" class="list-group-item list-group-item-action">My Results</a>
-      <a href="{% url 'my_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
-      <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
+        class="list-group-item list-group-item-action active bg-primary border-primary"><i
+          class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+      <a href="{% url 'students:available_exams' %}" class="list-group-item list-group-item-action"><i
+          class="fas fa-list-ul me-2"></i>Available Exams</a>
+      <a href="{% url 'students:my_results' %}" class="list-group-item list-group-item-action"><i
+          class="fas fa-chart-bar me-2"></i>My Results</a>
+      <a href="{% url 'my_profile' %}" class="list-group-item list-group-item-action"><i class="fas fa-user me-2"></i>My
+        Profile</a>
+      <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger"><i
+          class="fas fa-sign-out-alt me-2"></i>Logout</a>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="col-md-9 col-lg-10">
-    <h2 class="pb-2 mb-4 border-bottom">Student Overview</h2>
+    <h2 class="pb-2 mb-4 border-bottom fw-bold text-primary"><i class="fas fa-user-graduate me-2"></i>Student Overview
+    </h2>
 
     <!-- Statistics Cards -->
     <div class="row g-4 mb-5">
       <div class="col-md-4">
-        <div class="card text-white bg-success shadow h-100">
-          <div class="card-body">
+        <div class="card text-white bg-success shadow h-100 rounded-4"
+          style="background: linear-gradient(135deg, #22c55e 60%, #16a34a 100%);">
+          <div class="card-body text-center">
+            <div class="mb-2"><i class="fas fa-check-circle fa-2x"></i></div>
             <h5 class="card-title">Completed Exams</h5>
             <p class="card-text display-6 fw-bold">{{ completed_exams }}</p>
           </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card text-white bg-info shadow h-100">
-          <div class="card-body">
+        <div class="card text-white bg-info shadow h-100 rounded-4"
+          style="background: linear-gradient(135deg, #38bdf8 60%, #0ea5e9 100%);">
+          <div class="card-body text-center">
+            <div class="mb-2"><i class="fas fa-calendar-alt fa-2x"></i></div>
             <h5 class="card-title">Upcoming Exams</h5>
-            <p class="card-text display-6 fw-bold">
-              {{ upcoming_exams_count }}
-            </p>
+            <p class="card-text display-6 fw-bold">{{ upcoming_exams_count }}</p>
           </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card text-dark bg-warning shadow h-100">
-          <div class="card-body">
+        <div class="card text-dark bg-warning shadow h-100 rounded-4"
+          style="background: linear-gradient(135deg, #fde68a 60%, #fbbf24 100%);">
+          <div class="card-body text-center">
+            <div class="mb-2"><i class="fas fa-chart-line fa-2x"></i></div>
             <h5 class="card-title">Average Score</h5>
             <p class="card-text display-6 fw-bold">{{ average_score }}%</p>
           </div>
@@ -49,7 +59,7 @@
 
     <!-- Upcoming Exams -->
     <h3 class="h4 mb-3">Upcoming Exams</h3>
-    <div class="table-responsive shadow-sm border rounded mb-5">
+    <div class="table-responsive shadow-sm border rounded-4 mb-5 bg-white">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
@@ -84,7 +94,7 @@
 
     <!-- Recent Results -->
     <h3 class="h4 mb-3">My Recent Results</h3>
-    <div class="table-responsive shadow-sm border rounded">
+    <div class="table-responsive shadow-sm border rounded-4 bg-white">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
