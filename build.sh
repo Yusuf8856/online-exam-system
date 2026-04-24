@@ -4,5 +4,7 @@ set -o errexit
 pip install -r backend/requirements.txt
 
 cd backend
-python manage.py migrate || true
-python manage.py collectstatic --noinput
+
+# Only collect static files - skip database operations
+# Database migrations will be run locally before deployment
+python manage.py collectstatic --noinput --no-input
