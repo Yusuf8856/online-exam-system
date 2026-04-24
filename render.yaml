@@ -3,7 +3,7 @@ services:
     name: online-exam-system
     runtime: python311
     buildCommand: bash build.sh
-    startCommand: gunicorn backend.backend.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DEBUG
         value: false
