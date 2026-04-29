@@ -14,6 +14,12 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
+import sys
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0, os.path.join(BASE_DIR, '..'))
 
 # Load environment variables from parent directory
 env_path = Path(__file__).resolve().parent.parent.parent / '.env'
@@ -46,12 +52,12 @@ INSTALLED_APPS = [
 'django.contrib.messages',
 'django.contrib.staticfiles',
 
-'apps.users',
-'apps.students',
-'apps.teachers',
-'apps.exams',
-'apps.questions',
-'apps.results',
+'backend.apps.users',
+'backend.apps.students',
+'backend.apps.teachers',
+'backend.apps.exams',
+'backend.apps.questions',
+'backend.apps.results',
 
 ]
 
