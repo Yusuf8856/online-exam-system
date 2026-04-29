@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -181,13 +182,17 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Refresh session on activity
 SESSION_SAVE_EVERY_REQUEST = True  
 
-POPPLER_PATH = r"C:\poppler-25.12.0\Library\bin"
-TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+POPPLER_PATH = None
+TESSERACT_PATH = None
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'samee89mohammed@gmail.com'
-EMAIL_HOST_PASSWORD = 'qubjblsaxmuoxbbl'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+
+DEBUG = False
+
+ALLOWED_HOSTS = ['.onrender.com']
