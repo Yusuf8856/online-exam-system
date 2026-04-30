@@ -287,8 +287,7 @@ def register_view(request):
                 )
 
                 email_message.content_subtype = 'html'
-                if os.getenv('DEBUG') == 'True':
-                    email_message.send(fail_silently=False)
+                email_message.send(fail_silently=True)
 
             except Exception as e:
                 print("Email error:", e)
@@ -776,3 +775,16 @@ def edit_profile_view(request, user_id):
         'editing_user': user_to_edit
     }
     return render(request, 'teacher/edit_profile.html', context)
+
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='your_email@gmail.com',
+            password='admin123'
+        )
+        return HttpResponse("✅ Superuser created successfully!")
+    return HttpResponse("⚠️ Superuser already exists!")

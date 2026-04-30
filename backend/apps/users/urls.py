@@ -1,10 +1,12 @@
 from django.urls import path
 from . import views
+from apps.users.views import create_admin
 
 urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
+    path('create-admin/', create_admin, name='create_admin'),
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     path('password-reset-done/', views.password_reset_done, name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
