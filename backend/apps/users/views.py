@@ -71,9 +71,11 @@ def login_view(request):
 
 def send_email_async(email_message):
     try:
-        email_message.send(fail_silently=True)
+        print("🚀 Sending email...")
+        email_message.send(fail_silently=False)
+        print("✅ Email sent successfully")
     except Exception as e:
-        print("Email error:", e)
+        print("❌ Email error:", e)
 
 
 def register_view(request):
