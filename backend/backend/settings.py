@@ -15,15 +15,13 @@ import os
 from dotenv import load_dotenv
 import dj_database_url
 import sys
-import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-sys.path.insert(0, os.path.join(BASE_DIR, '..'))
-
-# Load environment variables from parent directory
+# Load environment variables from parent directory (project root)
 env_path = Path(__file__).resolve().parent.parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
+if os.path.exists(env_path):
+    load_dotenv(dotenv_path=env_path, override=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,9 +34,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-5!6cm8m#o6tw_@uq+o5a*w1dum5-e@kom@*v8(uf%gihzqgh1h')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+# Read from environment variable, default to True for local development
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Allowed hosts configuration
+if DEBUG:
+    # Development: allow all hosts
+    ALLOWED_HOSTS = ['*']
+else:
+    # Production: use environment variable
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.onrender.com').split(',')
 
 
 # Application definition
@@ -52,12 +57,12 @@ INSTALLED_APPS = [
 'django.contrib.messages',
 'django.contrib.staticfiles',
 
-'backend.apps.users',
-'backend.apps.students',
-'backend.apps.teachers',
-'backend.apps.exams',
-'backend.apps.questions',
-'backend.apps.results',
+'apps.users',
+'apps.students',
+'apps.teachers',
+'apps.exams',
+'apps.questions',
+'apps.results',
 
 ]
 
@@ -96,6 +101,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -198,7 +204,3 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-
-DEBUG = False
-
-ALLOWED_HOSTS = ['.onrender.com']
