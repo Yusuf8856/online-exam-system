@@ -10,7 +10,10 @@ from apps.exams.models import Exam
 from apps.questions.models import Question
 from apps.results.models import Result
 from datetime import date
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 
 # Create your views here.
@@ -66,29 +69,71 @@ def login_view(request):
 def register_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
+
         if form.is_valid():
-            user=form.save()
-             # ✅ Send Welcome Email
-            send_mail(
-                'Welcome to Online Examination System',
-                f"""Dear {user.first_name},
+            user = form.save()
 
-                Welcome to Online Examination System!
-
-                Your account has been successfully created as {user.profile.role}.
-
-                You can now login and start using the system.
-
-                Best Regards,
-                Exam Team
-                """,
-                'samee89mohammed@gmail.com',   # sender
-                [user.email],             # receiver
-                    fail_silently=False,
-            )
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
+            email = user.email
+
+            # 🔗 Generate dynamic login URL
+            site_url = request.build_absolute_uri('/')
+            login_url = site_url + 'login/'
+
+            # 📧 Send Welcome Email
+            try:
+                html_content = f"""
+                <html>
+                <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
+                    <div style="max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:8px;">
+                        
+                        <h2 style="color:#667eea;">🎓 Welcome to Online Examination System</h2>
+
+                        <p>Hi <strong>{username}</strong>,</p>
+
+                        <p>Your account has been successfully created.</p>
+
+                        <div style="background:#f0f4ff;padding:15px;border-radius:5px;margin:20px 0;">
+                            <p><strong>Username:</strong> {username}</p>
+                            <p><strong>Password:</strong> (hidden for security)</p>
+                        </div>
+
+                        <p>Please login using the button below:</p>
+
+                        <a href="{login_url}" 
+                           style="display:inline-block;padding:10px 20px;background:#667eea;color:#fff;text-decoration:none;border-radius:5px;">
+                           🔗 Login Now
+                        </a>
+
+                        <p style="margin-top:20px;font-size:13px;color:#555;">
+                            ⚠️ For security reasons, your password is not shared via email.
+                        </p>
+
+                        <hr>
+                        <p style="font-size:12px;color:#888;">This is an automated email.</p>
+
+                    </div>
+                </body>
+                </html>
+                """
+
+                email_message = EmailMessage(
+                    subject='Welcome to Online Examination System',
+                    body=html_content,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=[email],
+                )
+
+                email_message.content_subtype = 'html'
+                email_message.send(fail_silently=True)  # prevent crash
+
+            except Exception as e:
+                print("Email error:", e)
+                messages.warning(request, "Account created, but email could not be sent.")
+
+            messages.success(request, f'Account created successfully for {username}!')
             return redirect('login')
+
     else:
         form = SignUpForm()
 
