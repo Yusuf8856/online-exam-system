@@ -14,7 +14,10 @@ from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
-
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+import os
 
 # Create your views here.
 def home(request):
@@ -83,61 +86,431 @@ def register_view(request):
             # 📧 Send Welcome Email
             try:
                 html_content = f"""
+                <!DOCTYPE html>
                 <html>
-                <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
-                    <div style="max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:8px;">
-                        
-                        <h2 style="color:#667eea;">🎓 Welcome to Online Examination System</h2>
-
-                        <p>Hi <strong>{username}</strong>,</p>
-
-                        <p>Your account has been successfully created.</p>
-
-                        <div style="background:#f0f4ff;padding:15px;border-radius:5px;margin:20px 0;">
-                            <p><strong>Username:</strong> {username}</p>
-                            <p><strong>Password:</strong> (hidden for security)</p>
+                <head>
+                    <style>
+                        body {{
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background-color: #f5f5f5;
+                            margin: 0;
+                            padding: 20px;
+                        }}
+                        .email-container {{
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background-color: #ffffff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }}
+                        .header {{
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: #ffffff;
+                            padding: 40px 20px;
+                            text-align: center;
+                        }}
+                        .header h1 {{
+                            margin: 0;
+                            font-size: 28px;
+                            font-weight: 600;
+                        }}
+                        .content {{
+                            padding: 40px 30px;
+                        }}
+                        .greeting {{
+                            font-size: 16px;
+                            color: #333333;
+                            margin-bottom: 20px;
+                            line-height: 1.6;
+                        }}
+                        .success-badge {{
+                            text-align: center;
+                            padding: 20px;
+                            background: #e8f5e9;
+                            border-left: 4px solid #4caf50;
+                            border-radius: 4px;
+                            margin: 20px 0;
+                        }}
+                        .success-badge p {{
+                            margin: 0;
+                            color: #2e7d32;
+                            font-weight: 600;
+                            font-size: 16px;
+                        }}
+                        .login-button {{
+                            display: inline-block;
+                            background-color: #667eea;
+                            color: #ffffff;
+                            padding: 12px 30px;
+                            text-decoration: none;
+                            border-radius: 4px;
+                            font-weight: 600;
+                            margin: 20px 0;
+                        }}
+                        .login-button:hover {{
+                            background-color: #764ba2;
+                        }}
+                        .features {{
+                            background-color: #f9f9f9;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 4px;
+                        }}
+                        .features h3 {{
+                            color: #667eea;
+                            margin-top: 0;
+                        }}
+                        .features ul {{
+                            margin: 10px 0;
+                            padding-left: 20px;
+                        }}
+                        .features li {{
+                            margin: 8px 0;
+                            color: #555555;
+                            line-height: 1.5;
+                        }}
+                        .footer {{
+                            background-color: #f8f9fa;
+                            padding: 20px 30px;
+                            border-top: 1px solid #e9ecef;
+                            text-align: center;
+                            color: #666666;
+                            font-size: 12px;
+                        }}
+                        .footer a {{
+                            color: #667eea;
+                            text-decoration: none;
+                        }}
+                        .next-steps {{
+                            background-color: #fff3e0;
+                            border-left: 4px solid #ff9800;
+                            padding: 15px;
+                            border-radius: 4px;
+                            margin: 20px 0;
+                        }}
+                        .next-steps h3 {{
+                            color: #ff9800;
+                            margin-top: 0;
+                        }}
+                        .next-steps ol {{
+                            margin: 10px 0;
+                            padding-left: 20px;
+                        }}
+                        .next-steps li {{
+                            margin: 8px 0;
+                            color: #e65100;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <!-- Header -->
+                        <div class="header">
+                            <h1>🎓 Welcome to Digital Assessment Platform</h1>
+                            <p style="margin: 10px 0 0 0; font-size: 14px;">Your Account Has Been Successfully Created</p>
                         </div>
-
-                        <p>Please login using the button below:</p>
-
-                        <a href="{login_url}" 
-                           style="display:inline-block;padding:10px 20px;background:#667eea;color:#fff;text-decoration:none;border-radius:5px;">
-                           🔗 Login Now
-                        </a>
-
-                        <p style="margin-top:20px;font-size:13px;color:#555;">
-                            ⚠️ For security reasons, your password is not shared via email.
-                        </p>
-
-                        <hr>
-                        <p style="font-size:12px;color:#888;">This is an automated email.</p>
-
+                        
+                        <!-- Main Content -->
+                        <div class="content">
+                            <div class="greeting">
+                                <p>Hello <strong>{username}</strong>,</p>
+                                <p>Thank you for registering with our <strong>Digital Assessment Platform</strong>! We're thrilled to have you join our community. Your account has been successfully created and is ready to use.</p>
+                            </div>
+                            
+                            <!-- Success Badge -->
+                            <div class="success-badge">
+                                <p>✅ Account Successfully Created!</p>
+                            </div>
+                            
+                            <!-- Next Steps -->
+                            <div class="next-steps">
+                                <h3>📋 Next Steps:</h3>
+                                <ol>
+                                    <li>Click the "Login Now" button below</li>
+                                    <li>Use your registered username and password</li>
+                                    <li>Complete your profile with additional information</li>
+                                    <li>Start taking exams and checking results!</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- Features -->
+                            <div class="features">
+                                <h3>✨ What You Can Do:</h3>
+                                <ul>
+                                    <li><strong>📝 Take Exams:</strong> Access and complete online examinations</li>
+                                    <li><strong>📊 View Results:</strong> Check your scores and detailed performance reports</li>
+                                    <li><strong>📄 Download Reports:</strong> Get your exam report cards</li>
+                                    <li><strong>👤 Manage Profile:</strong> Update your personal information</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Call to Action -->
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{login_url}" class="login-button">🔗 Login Now</a>
+                            </div>
+                            
+                            <!-- Security Notice -->
+                            <div style="background-color: #e3f2fd; padding: 15px; border-left: 4px solid #2196f3; border-radius: 4px; margin: 20px 0;">
+                                <p style="margin: 0; color: #0d47a1; font-size: 14px;">
+                                    <strong>🔒 Security Tip:</strong> Your password is securely stored and never shared via email. If you didn't create this account, please <a href="mailto:support@examsystem.com" style="color: #0d47a1; text-decoration: underline;">contact support</a> immediately.
+                                </p>
+                            </div>
+                            
+                            <!-- Support -->
+                            <div style="background-color: #f0f4ff; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                                <p style="margin: 0; color: #555555; font-size: 14px;">
+                                    <strong>❓ Need Help?</strong> If you have any questions, check out our FAQ or contact our support team at <strong>support@examsystem.com</strong>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="footer">
+                            <p style="margin: 0 0 10px 0;">
+                                © 2026 Digital Assessment Platform. All rights reserved.
+                            </p>
+                            <p style="margin: 0;">
+                                This is an automated email. Please do not reply directly to this address.
+                            </p>
+                        </div>
                     </div>
                 </body>
                 </html>
                 """
 
                 email_message = EmailMessage(
-                    subject='Welcome to Online Examination System',
+                    subject='✅ Welcome to Digital Assessment Platform - Account Created Successfully!',
                     body=html_content,
                     from_email=settings.EMAIL_HOST_USER,
                     to=[email],
                 )
 
                 email_message.content_subtype = 'html'
-                email_message.send(fail_silently=True)  # prevent crash
+                if os.getenv('DEBUG') == 'True':
+                    email_message.send(fail_silently=False)
 
             except Exception as e:
                 print("Email error:", e)
                 messages.warning(request, "Account created, but email could not be sent.")
 
-            messages.success(request, f'Account created successfully for {username}!')
+            # ✅ Improved Success Message
+            messages.success(
+                request, 
+                f'✅ Account created successfully! Welcome {username}! 📧 Check your email for confirmation details. You can now log in below.'
+            )
             return redirect('login')
 
     else:
         form = SignUpForm()
 
     return render(request, 'auth/register.html', {'form': form})
+
+# ✅ FORGOT PASSWORD FUNCTIONALITY
+
+def forgot_password_view(request):
+    """Send password reset link to user's email"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            
+            # Generate password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Build reset URL
+            reset_url = request.build_absolute_uri(f'/password-reset-confirm/{uid}/{token}/')
+            
+            # Send email
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f5f5f5;
+                        margin: 0;
+                        padding: 20px;
+                    }}
+                    .email-container {{
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        overflow: hidden;
+                    }}
+                    .header {{
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: #ffffff;
+                        padding: 40px 20px;
+                        text-align: center;
+                    }}
+                    .header h1 {{
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 600;
+                    }}
+                    .content {{
+                        padding: 40px 30px;
+                    }}
+                    .reset-button {{
+                        display: inline-block;
+                        background-color: #667eea;
+                        color: #ffffff;
+                        padding: 12px 30px;
+                        text-decoration: none;
+                        border-radius: 4px;
+                        font-weight: 600;
+                        margin: 20px 0;
+                    }}
+                    .reset-button:hover {{
+                        background-color: #764ba2;
+                    }}
+                    .warning {{
+                        background-color: #fff3cd;
+                        border: 1px solid #ffc107;
+                        padding: 15px;
+                        border-radius: 4px;
+                        margin: 20px 0;
+                        color: #856404;
+                        font-size: 14px;
+                    }}
+                    .footer {{
+                        background-color: #f8f9fa;
+                        padding: 20px 30px;
+                        border-top: 1px solid #e9ecef;
+                        text-align: center;
+                        color: #666666;
+                        font-size: 12px;
+                    }}
+                    .code-box {{
+                        background-color: #f0f4ff;
+                        border-left: 4px solid #667eea;
+                        padding: 20px;
+                        margin: 20px 0;
+                        border-radius: 4px;
+                        word-break: break-all;
+                        font-family: 'Courier New', monospace;
+                        font-size: 12px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="header">
+                        <h1>🔐 Password Reset Request</h1>
+                        <p style="margin: 10px 0 0 0; font-size: 14px;">Reset your Digital Assessment Platform password</p>
+                    </div>
+                    
+                    <div class="content">
+                        <p>Hi <strong>{user.username}</strong>,</p>
+                        <p>We received a request to reset your password for the Digital Assessment Platform. Click the button below to create a new password.</p>
+                        
+                        <div style="text-align: center;">
+                            <a href="{reset_url}" class="reset-button">🔗 Reset Password</a>
+                        </div>
+                        
+                        <p style="font-size: 14px; color: #666;">Or copy and paste this link in your browser:</p>
+                        <div class="code-box">
+                            {reset_url}
+                        </div>
+                        
+                        <div class="warning">
+                            <strong>⏰ Important:</strong> This password reset link will expire in 24 hours. If you didn't request a password reset, please ignore this email or contact support immediately.
+                        </div>
+                        
+                        <div style="background-color: #e3f2fd; padding: 15px; border-left: 4px solid #2196f3; border-radius: 4px; margin: 20px 0;">
+                            <p style="margin: 0; color: #0d47a1; font-size: 14px;">
+                                <strong>🔒 Security Tip:</strong> We will never ask you for your password via email. Always reset your password through our secure platform.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p style="margin: 0 0 10px 0;">
+                            © 2026 Digital Assessment Platform. All rights reserved.
+                        </p>
+                        <p style="margin: 0;">
+                            This is an automated email. Please do not reply directly to this address.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            email_message = EmailMessage(
+                subject='🔐 Password Reset Request - Digital Assessment Platform',
+                body=html_content,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[email],
+            )
+            email_message.content_subtype = 'html'
+            email_message.send(fail_silently=False)
+            
+            messages.success(request, '📧 Password reset link has been sent to your email. Please check your inbox and follow the instructions.')
+            return redirect('password_reset_done')
+            
+        except User.DoesNotExist:
+            # Don't reveal if email exists or not (security best practice)
+            messages.success(request, '📧 If an account exists with this email, password reset instructions have been sent.')
+            return redirect('password_reset_done')
+        except Exception as e:
+            print(f"Error sending reset email: {e}")
+            messages.error(request, '❌ Error sending password reset email. Please try again later.')
+    
+    return render(request, 'auth/forgot_password.html')
+
+
+def password_reset_confirm(request, uidb64, token):
+    """Verify token and allow user to set new password"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    # Verify token
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+            
+            if password1 and password2:
+                if password1 != password2:
+                    messages.error(request, '❌ Passwords do not match!')
+                    return render(request, 'auth/password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+                
+                if len(password1) < 6:
+                    messages.error(request, '❌ Password must be at least 6 characters long!')
+                    return render(request, 'auth/password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+                
+                # Set new password
+                user.set_password(password1)
+                user.save()
+                
+                messages.success(request, '✅ Password reset successfully! You can now log in with your new password.')
+                return redirect('password_reset_complete')
+            else:
+                messages.error(request, '❌ Please fill in all password fields!')
+        
+        return render(request, 'auth/password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+    else:
+        messages.error(request, '❌ Invalid or expired password reset link!')
+        return redirect('forgot_password')
+
+
+def password_reset_done(request):
+    """Show confirmation that reset email was sent"""
+    return render(request, 'auth/password_reset_done.html')
+
+
+def password_reset_complete(request):
+    """Show confirmation that password was reset"""
+    return render(request, 'auth/password_reset_complete.html')
 
 @login_required(login_url='login')
 def admin_dashboard(request):
