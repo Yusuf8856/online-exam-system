@@ -18,6 +18,10 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 import threading
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+import os
+
 
 # Create your views here.
 def home(request):
@@ -69,15 +73,6 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'auth/login.html')
 
-def send_email_async(email_message):
-    try:
-        print("🚀 Sending email...")
-        email_message.send(fail_silently=False)
-        print("✅ Email sent successfully")
-    except Exception as e:
-        print("❌ Email error:", e)
-
-
 def register_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -88,37 +83,29 @@ def register_view(request):
             username = form.cleaned_data.get('username')
             email = user.email
 
-            # 🔗 Generate dynamic login URL
-            site_url = request.build_absolute_uri('/')
-            login_url = site_url + 'login/'
-
             try:
-                html_content = f""" YOUR FULL HTML (same as before) """
+                print("🚀 Sending email via SendGrid API...")
 
-                email_message = EmailMessage(
-                    subject='✅ Welcome to Digital Assessment Platform - Account Created Successfully!',
-                    body=html_content,
-                    from_email='yusufali2235@gmail.com',
-                    to=[email],
+                message = Mail(
+                    from_email='yusufali2235@gmail.com',  # verified sender
+                    to_emails=email,
+                    subject='Welcome to Digital Assessment Platform',
+                    html_content=f"""
+                        <h2>Welcome {username} 🎉</h2>
+                        <p>Your account has been created successfully.</p>
+                        <p>You can now login and start your exams.</p>
+                    """
                 )
+                print("API KEY:", os.getenv('EMAIL_HOST_PASSWORD'))
+                sg = SendGridAPIClient(os.getenv('EMAIL_HOST_PASSWORD'))
+                response = sg.send(message)
 
-                email_message.content_subtype = 'html'
-
-                # 🔥 IMPORTANT: SEND EMAIL IN BACKGROUND
-                threading.Thread(
-                    target=send_email_async,
-                    args=(email_message,),
-                    daemon=True
-                ).start()
+                print("✅ Email sent successfully:", response.status_code)
 
             except Exception as e:
-                print("Email error:", e)
-                messages.warning(request, "Account created, but email could not be sent.")
+                print("❌ Email error:", str(e))
 
-            messages.success(
-                request,
-                f'✅ Account created successfully! Welcome {username}! 📧 Check your email.'
-            )
+            messages.success(request, f'Account created successfully for {username}!')
             return redirect('login')
 
     else:
