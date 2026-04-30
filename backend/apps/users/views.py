@@ -98,7 +98,7 @@ def register_view(request):
                 email_message = EmailMessage(
                     subject='✅ Welcome to Digital Assessment Platform - Account Created Successfully!',
                     body=html_content,
-                    from_email=settings.EMAIL_HOST_USER,
+                    from_email='yusufali2235@gmail.com',
                     to=[email],
                 )
 
@@ -265,7 +265,7 @@ def forgot_password_view(request):
             email_message = EmailMessage(
                 subject='🔐 Password Reset Request - Digital Assessment Platform',
                 body=html_content,
-                from_email=settings.EMAIL_HOST_USER,
+                from_email='yusufali2235@gmail.com',
                 to=[email],
             )
             email_message.content_subtype = 'html'
