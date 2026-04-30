@@ -5,9 +5,7 @@
       <div class="card shadow-lg border-0 rounded-lg">
         <div class="card-body p-0">
           <div class="row">
-            <div
-              class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-primary rounded-start"
-            >
+            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-primary rounded-start">
               <div class="text-center p-5">
                 <i class="fas fa-user-lock fa-5x text-white mb-4"></i>
                 <h2 class="text-white fw-bold">Secure Login</h2>
@@ -21,25 +19,13 @@
               <form method="POST">
                 {% csrf_token %}
                 <div class="form-floating mb-3">
-                  <input
-                    type="text"
-                    name="username"
-                    class="form-control"
-                    id="floatingUsername"
-                    placeholder="Enter username"
-                    required
-                  />
+                  <input type="text" name="username" class="form-control" id="floatingUsername"
+                    placeholder="Enter username" required />
                   <label for="floatingUsername">Username</label>
                 </div>
                 <div class="form-floating mb-3">
-                  <input
-                    type="password"
-                    name="password"
-                    class="form-control"
-                    id="floatingPassword"
-                    placeholder="Enter password"
-                    required
-                  />
+                  <input type="password" name="password" class="form-control" id="floatingPassword"
+                    placeholder="Enter password" required />
                   <label for="floatingPassword">Password</label>
                 </div>
                 <div class="form-floating mb-3">
@@ -53,23 +39,17 @@
                 </div>
                 <!-- CAPTCHA Section -->
                 <div class="mb-3">
-                    <!-- Captcha row -->
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <!-- Generated captcha -->
-                        <span id="captcha" class="form-control text-center fw-bold" style="max-width:150px;"></span>
-                        <!-- Refresh button -->
-                        <button type="button" class="btn btn-secondary" onclick="generateCaptcha()">↻</button>
-                    </div>
-                    <!-- Input + hidden field -->
-                    <input type="hidden" id="generatedCaptcha" name="generatedCaptcha">
-                    <input
-                        type="text"
-                        name="captchaInput"
-                        id="captchaInput"
-                        class="form-control"
-                        placeholder="Enter CAPTCHA"
-                        required
-                    >
+                  <!-- Captcha row -->
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <!-- Generated captcha -->
+                    <span id="captcha" class="form-control text-center fw-bold" style="max-width:150px;"></span>
+                    <!-- Refresh button -->
+                    <button type="button" class="btn btn-secondary" onclick="generateCaptcha()">↻</button>
+                  </div>
+                  <!-- Input + hidden field -->
+                  <input type="hidden" id="generatedCaptcha" name="generatedCaptcha">
+                  <input type="text" name="captchaInput" id="captchaInput" class="form-control"
+                    placeholder="Enter CAPTCHA" required>
 
                 </div>
                 <div class="d-grid">
@@ -84,6 +64,12 @@
                   Don't have an account?
                   <a href="{% url 'register' %}">Register Now</a>
                 </p>
+                <p class="small mt-2">
+                  Forgot your password?
+                  <a href="{% url 'forgot_password' %}" class="text-decoration-none">
+                    <i class="fas fa-key me-1"></i>Reset it here
+                  </a>
+                </p>
               </div>
             </div>
           </div>
@@ -93,18 +79,18 @@
   </div>
 </div>
 <script>
-  function generateCaptcha(){
+  function generateCaptcha() {
     let chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let captcha = "";
-    for(let i=0;i<5;i++){
-      captcha += chars.charAt(Math.floor(Math.random()*chars.length));
+    for (let i = 0; i < 5; i++) {
+      captcha += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     document.getElementById("captcha").innerText = captcha;
     /* Store in hidden field */
     document.getElementById("generatedCaptcha").value = captcha;
   }
-  window.onload = function(){
+  window.onload = function () {
     generateCaptcha();
-    }
-  </script>
+  }
+</script>
 {% endblock %}
