@@ -79,31 +79,76 @@ def register_view(request):
 
         if form.is_valid():
             user = form.save()
-
-            username = form.cleaned_data.get('username')
+            username = user.username
             email = user.email
 
             try:
-                print("🚀 Sending email via SendGrid API...")
+                login_url = request.build_absolute_uri('/login/')
+
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family:Arial;background:#f4f6f9;padding:20px">
+
+                <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.1)">
+
+                    <!-- HEADER -->
+                    <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px;text-align:center">
+                        <h2>🎓 Welcome {username}</h2>
+                        <p>Your account is ready 🚀</p>
+                    </div>
+
+                    <!-- CONTENT -->
+                    <div style="padding:25px;color:#333;">
+                        <p>Hi <strong>{username}</strong>,</p>
+
+                        <p>Your account has been successfully created on the 
+                        <strong>Digital Assessment Platform</strong>.</p>
+
+                        <div style="background:#f0f4ff;padding:15px;border-radius:6px;margin:20px 0;">
+                            <p><strong>Username:</strong> {username}</p>
+                            <p><strong>Email:</strong> {email}</p>
+                        </div>
+
+                        <div style="text-align:center;margin-top:25px;">
+                            <a href="{login_url}" 
+                               style="background:#667eea;color:white;padding:12px 25px;
+                               text-decoration:none;border-radius:6px;font-weight:bold;">
+                               🔐 Login Now
+                            </a>
+                        </div>
+
+                        <p style="margin-top:20px;font-size:13px;color:#555;">
+                            If you didn’t create this account, please ignore this email.
+                        </p>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div style="text-align:center;font-size:12px;color:#888;padding:15px;border-top:1px solid #eee;">
+                        © 2026 Digital Assessment Platform <br>
+                        This is an automated email
+                    </div>
+
+                </div>
+
+                </body>
+                </html>
+                """
 
                 message = Mail(
-                    from_email='yusufali2235@gmail.com',  # verified sender
+                    from_email="yusufali2235@gmail.com",  # verified sender
                     to_emails=email,
-                    subject='Welcome to Digital Assessment Platform',
-                    html_content=f"""
-                        <h2>Welcome {username} 🎉</h2>
-                        <p>Your account has been created successfully.</p>
-                        <p>You can now login and start your exams.</p>
-                    """
+                    subject="🎓 Welcome to Digital Assessment Platform",
+                    html_content=html_content,
                 )
-                print("API KEY:", os.getenv('EMAIL_HOST_PASSWORD'))
-                sg = SendGridAPIClient(os.getenv('EMAIL_HOST_PASSWORD'))
+
+                sg = SendGridAPIClient(settings.EMAIL_HOST_PASSWORD)
                 response = sg.send(message)
 
-                print("✅ Email sent successfully:", response.status_code)
+                print("✅ Email sent:", response.status_code)
 
             except Exception as e:
-                print("❌ Email error:", str(e))
+                print("❌ Email error:", e)
 
             messages.success(request, f'Account created successfully for {username}!')
             return redirect('login')
