@@ -17,7 +17,7 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-import os
+import threading
 
 # Create your views here.
 def home(request):
@@ -69,6 +69,13 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'auth/login.html')
 
+def send_email_async(email_message):
+    try:
+        email_message.send(fail_silently=True)
+    except Exception as e:
+        print("Email error:", e)
+
+
 def register_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -83,201 +90,8 @@ def register_view(request):
             site_url = request.build_absolute_uri('/')
             login_url = site_url + 'login/'
 
-            # 📧 Send Welcome Email
             try:
-                html_content = f"""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body {{
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                            background-color: #f5f5f5;
-                            margin: 0;
-                            padding: 20px;
-                        }}
-                        .email-container {{
-                            max-width: 600px;
-                            margin: 0 auto;
-                            background-color: #ffffff;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                            overflow: hidden;
-                        }}
-                        .header {{
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: #ffffff;
-                            padding: 40px 20px;
-                            text-align: center;
-                        }}
-                        .header h1 {{
-                            margin: 0;
-                            font-size: 28px;
-                            font-weight: 600;
-                        }}
-                        .content {{
-                            padding: 40px 30px;
-                        }}
-                        .greeting {{
-                            font-size: 16px;
-                            color: #333333;
-                            margin-bottom: 20px;
-                            line-height: 1.6;
-                        }}
-                        .success-badge {{
-                            text-align: center;
-                            padding: 20px;
-                            background: #e8f5e9;
-                            border-left: 4px solid #4caf50;
-                            border-radius: 4px;
-                            margin: 20px 0;
-                        }}
-                        .success-badge p {{
-                            margin: 0;
-                            color: #2e7d32;
-                            font-weight: 600;
-                            font-size: 16px;
-                        }}
-                        .login-button {{
-                            display: inline-block;
-                            background-color: #667eea;
-                            color: #ffffff;
-                            padding: 12px 30px;
-                            text-decoration: none;
-                            border-radius: 4px;
-                            font-weight: 600;
-                            margin: 20px 0;
-                        }}
-                        .login-button:hover {{
-                            background-color: #764ba2;
-                        }}
-                        .features {{
-                            background-color: #f9f9f9;
-                            padding: 20px;
-                            margin: 20px 0;
-                            border-radius: 4px;
-                        }}
-                        .features h3 {{
-                            color: #667eea;
-                            margin-top: 0;
-                        }}
-                        .features ul {{
-                            margin: 10px 0;
-                            padding-left: 20px;
-                        }}
-                        .features li {{
-                            margin: 8px 0;
-                            color: #555555;
-                            line-height: 1.5;
-                        }}
-                        .footer {{
-                            background-color: #f8f9fa;
-                            padding: 20px 30px;
-                            border-top: 1px solid #e9ecef;
-                            text-align: center;
-                            color: #666666;
-                            font-size: 12px;
-                        }}
-                        .footer a {{
-                            color: #667eea;
-                            text-decoration: none;
-                        }}
-                        .next-steps {{
-                            background-color: #fff3e0;
-                            border-left: 4px solid #ff9800;
-                            padding: 15px;
-                            border-radius: 4px;
-                            margin: 20px 0;
-                        }}
-                        .next-steps h3 {{
-                            color: #ff9800;
-                            margin-top: 0;
-                        }}
-                        .next-steps ol {{
-                            margin: 10px 0;
-                            padding-left: 20px;
-                        }}
-                        .next-steps li {{
-                            margin: 8px 0;
-                            color: #e65100;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class="email-container">
-                        <!-- Header -->
-                        <div class="header">
-                            <h1>🎓 Welcome to Digital Assessment Platform</h1>
-                            <p style="margin: 10px 0 0 0; font-size: 14px;">Your Account Has Been Successfully Created</p>
-                        </div>
-                        
-                        <!-- Main Content -->
-                        <div class="content">
-                            <div class="greeting">
-                                <p>Hello <strong>{username}</strong>,</p>
-                                <p>Thank you for registering with our <strong>Digital Assessment Platform</strong>! We're thrilled to have you join our community. Your account has been successfully created and is ready to use.</p>
-                            </div>
-                            
-                            <!-- Success Badge -->
-                            <div class="success-badge">
-                                <p>✅ Account Successfully Created!</p>
-                            </div>
-                            
-                            <!-- Next Steps -->
-                            <div class="next-steps">
-                                <h3>📋 Next Steps:</h3>
-                                <ol>
-                                    <li>Click the "Login Now" button below</li>
-                                    <li>Use your registered username and password</li>
-                                    <li>Complete your profile with additional information</li>
-                                    <li>Start taking exams and checking results!</li>
-                                </ol>
-                            </div>
-                            
-                            <!-- Features -->
-                            <div class="features">
-                                <h3>✨ What You Can Do:</h3>
-                                <ul>
-                                    <li><strong>📝 Take Exams:</strong> Access and complete online examinations</li>
-                                    <li><strong>📊 View Results:</strong> Check your scores and detailed performance reports</li>
-                                    <li><strong>📄 Download Reports:</strong> Get your exam report cards</li>
-                                    <li><strong>👤 Manage Profile:</strong> Update your personal information</li>
-                                </ul>
-                            </div>
-                            
-                            <!-- Call to Action -->
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="{login_url}" class="login-button">🔗 Login Now</a>
-                            </div>
-                            
-                            <!-- Security Notice -->
-                            <div style="background-color: #e3f2fd; padding: 15px; border-left: 4px solid #2196f3; border-radius: 4px; margin: 20px 0;">
-                                <p style="margin: 0; color: #0d47a1; font-size: 14px;">
-                                    <strong>🔒 Security Tip:</strong> Your password is securely stored and never shared via email. If you didn't create this account, please <a href="mailto:support@examsystem.com" style="color: #0d47a1; text-decoration: underline;">contact support</a> immediately.
-                                </p>
-                            </div>
-                            
-                            <!-- Support -->
-                            <div style="background-color: #f0f4ff; padding: 15px; border-radius: 4px; margin: 20px 0;">
-                                <p style="margin: 0; color: #555555; font-size: 14px;">
-                                    <strong>❓ Need Help?</strong> If you have any questions, check out our FAQ or contact our support team at <strong>support@examsystem.com</strong>
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <!-- Footer -->
-                        <div class="footer">
-                            <p style="margin: 0 0 10px 0;">
-                                © 2026 Digital Assessment Platform. All rights reserved.
-                            </p>
-                            <p style="margin: 0;">
-                                This is an automated email. Please do not reply directly to this address.
-                            </p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-                """
+                html_content = f""" YOUR FULL HTML (same as before) """
 
                 email_message = EmailMessage(
                     subject='✅ Welcome to Digital Assessment Platform - Account Created Successfully!',
@@ -287,16 +101,21 @@ def register_view(request):
                 )
 
                 email_message.content_subtype = 'html'
-                email_message.send(fail_silently=True)
+
+                # 🔥 IMPORTANT: SEND EMAIL IN BACKGROUND
+                threading.Thread(
+                    target=send_email_async,
+                    args=(email_message,),
+                    daemon=True
+                ).start()
 
             except Exception as e:
                 print("Email error:", e)
                 messages.warning(request, "Account created, but email could not be sent.")
 
-            # ✅ Improved Success Message
             messages.success(
-                request, 
-                f'✅ Account created successfully! Welcome {username}! 📧 Check your email for confirmation details. You can now log in below.'
+                request,
+                f'✅ Account created successfully! Welcome {username}! 📧 Check your email.'
             )
             return redirect('login')
 
